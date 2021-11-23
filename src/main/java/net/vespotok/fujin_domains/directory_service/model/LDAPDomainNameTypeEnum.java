@@ -5,3 +5,4 @@ public enum LDAPDomainNameTypeEnum {
     Win2000Style,
     DN
 }
+

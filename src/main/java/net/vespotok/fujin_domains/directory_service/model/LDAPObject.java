@@ -103,6 +103,7 @@ public class LDAPObject {
         }
         return null;
     }
+
     public String getAttributeValue(LDAPAttributeEnum attributeName)
     {
         LDAPAttribute[] arrayOfAttributes = attributeArray.toArray(LDAPAttribute[]::new);

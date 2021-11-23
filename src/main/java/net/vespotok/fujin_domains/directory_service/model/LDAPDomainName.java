@@ -29,6 +29,7 @@ public class LDAPDomainName {
         this.NT5Name = name.toLowerCase() + "." + this.defaultTld;
         this.DN = "dc="+name.toLowerCase()+",dc="+this.defaultTld;
     }
+
     private void createFromNT5Name(String name)
     {
         String[] levelNameArray = name.split("\\.");
@@ -38,6 +39,7 @@ public class LDAPDomainName {
         this.NT5Name = name;
         this.DN = "dc="+String.join(",dc=", levelNameArray);
     }
+
     private void createFromDN(String name)
     {
         String[] levelNameArray = name.split(",dc=");
@@ -53,6 +55,7 @@ public class LDAPDomainName {
     {
         return this.DN;
     }
+
     public String toWin2000Style()
     {
         return this.NT5Name;

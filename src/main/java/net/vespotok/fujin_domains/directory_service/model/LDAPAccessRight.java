@@ -9,12 +9,12 @@ public class LDAPAccessRight {
         this.ldapAccessRight = ldapAccessRight;
         this.uid = uid;
     }
+
     public LDAPAccessRight(String username, LDAPDomainName domain, LDAPAccessRightEnum ldapAccessRight)
     {
         this.ldapAccessRight = ldapAccessRight;
         this.uid = "uid="+ username + "," + domain.toDN();
     }
-
 
     public String getUid() {
         return uid;

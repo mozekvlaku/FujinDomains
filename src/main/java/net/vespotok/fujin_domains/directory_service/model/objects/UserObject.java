@@ -25,6 +25,7 @@ public class UserObject extends LDAPObject {
         this.domainName = domainName;
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.dn, "uid="+this.username+","+this.domainName.toDN()));
     }
+
     public UserObject(String name, String surname, String username, String password, String telephoneNumber, LDAPDomainName domainName)
     {
         this.username = username;
@@ -37,6 +38,7 @@ public class UserObject extends LDAPObject {
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.userPassword, password));
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.telephoneNumber, telephoneNumber));
     }
+
     public String getName()
     {
         return this.getAttributeValue(LDAPAttributeEnum.name);

@@ -66,6 +66,7 @@ public class LDAPDomain {
         }
         return null;
     }
+
     public ArrayList<LDAPObject> searchObjectsByName(String query)
     {
         ArrayList<LDAPObject> returnObjects = new ArrayList<LDAPObject>();

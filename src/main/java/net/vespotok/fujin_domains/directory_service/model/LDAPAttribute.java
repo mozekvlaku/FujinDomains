@@ -12,6 +12,7 @@ public class LDAPAttribute {
     {
         this.attributeName = attributeNameEnum;
     }
+
     public LDAPAttribute(LDAPAttributeEnum attributeNameEnum, String attributeValue)
     {
         this.attributeName = attributeNameEnum;
@@ -21,6 +22,7 @@ public class LDAPAttribute {
     {
         this.attributeName = LDAPAttributeEnum.valueOf(attributeName);
     }
+
     public LDAPAttribute(String attributeName, String attributeValue)
     {
         this.attributeName = LDAPAttributeEnum.valueOf(attributeName);
@@ -34,6 +36,7 @@ public class LDAPAttribute {
     public void setAttributeName(LDAPAttributeEnum attributeName) {
         this.attributeName = attributeName;
     }
+
     public void setAttributeName(String attributeName) {
         this.attributeName = LDAPAttributeEnum.valueOf(attributeName);
     }
@@ -41,6 +44,7 @@ public class LDAPAttribute {
     public String getAttributeValueString() {
         return attributeValue;
     }
+
     public int getAttributeValueInt() {
         return parseInt(attributeValue);
     }

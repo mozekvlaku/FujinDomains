@@ -7,6 +7,7 @@ import net.vespotok.fujin_domains.directory_service.model.LDAPObject;
 
 public class GroupObject extends LDAPObject {
     private String name;
+
     public GroupObject(String name, String friendlyName)
     {
         this.name = name;
@@ -14,6 +15,7 @@ public class GroupObject extends LDAPObject {
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.name, friendlyName));
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.cn, name));
     }
+
     public void setDomainName(LDAPDomainName domainName)
     {
         this.domainName = domainName;

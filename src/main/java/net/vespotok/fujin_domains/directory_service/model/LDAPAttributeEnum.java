@@ -53,5 +53,6 @@ public enum LDAPAttributeEnum {
     wwwHomePage,
     objectClass,
     userPassword,
-    memberOf
+    memberOf,
+    fujinHome
 }
