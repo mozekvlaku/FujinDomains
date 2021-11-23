@@ -1,0 +1,9 @@
+<?php
+/**
+*
+*
+*/
+namespace Net/Vespotok/Fujin/Framework/Kernel/Core;
+class ssoauth extends CoreApplication {
+
+}
