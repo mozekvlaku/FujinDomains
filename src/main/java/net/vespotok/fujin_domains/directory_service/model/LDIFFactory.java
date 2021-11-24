@@ -1,5 +1,7 @@
 package net.vespotok.fujin_domains.directory_service.model;
 
+import java.util.Arrays;
+
 public class LDIFFactory {
     private LDAPDomain workingDomain;
     private LDAPUser ldapUser;
@@ -20,14 +22,25 @@ public class LDIFFactory {
 
             LDAPObject object = workingDomain.getObjectByDn(dnLine);
 
-
-
             for(String ldifLine : ldifLines)
             {
                     String[] ldifLineNuggets = ldifLine.split(":");
                     String attribute = ldifLineNuggets[0].trim();
                     String value = ldifLineNuggets[1].trim();
-                    this.actionLDIFLine(attribute, value, actionLine, object);
+
+                    switch (attribute)
+                    {
+                        case "changeType":
+                            actionLine = value;
+                            break; 
+                        case "dn":
+                            dnLine = value;
+                        break;
+                        default:
+                            this.actionLDIFLine(attribute, value, actionLine, object);
+                            break;
+                    }
+
             }
         }
     }

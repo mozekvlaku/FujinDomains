@@ -39,6 +39,7 @@ public class FujinDirectoryAndCredentialProviderServiceApplication {
         String ldifString = "# Testing ldif \n" +
                 "dn: uid=doudaka,dc=dc,dc=vespotok,dc=net\n" +
                 "changeType: modify\n" +
+                "add: description\n" +
                 "description: Toto je Kája Doudů";
 
         ldifFactory.parseLDIF(ldifString);
