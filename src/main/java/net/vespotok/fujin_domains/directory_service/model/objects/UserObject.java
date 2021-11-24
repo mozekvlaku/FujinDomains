@@ -18,6 +18,8 @@ public class UserObject extends LDAPObject {
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.sn, surname));
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.userPassword, password));
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.telephoneNumber, telephoneNumber));
+        this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.userPrincipalName, username));
+
     }
 
     public void setDomainName(LDAPDomainName domainName)

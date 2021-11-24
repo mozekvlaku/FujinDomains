@@ -10,10 +10,10 @@ public class LDAPAccessRight {
         this.uid = uid;
     }
 
-    public LDAPAccessRight(String username, LDAPDomainName domain, LDAPAccessRightEnum ldapAccessRight)
+    public LDAPAccessRight(LDAPUser ldapUser, LDAPAccessRightEnum ldapAccessRight)
     {
         this.ldapAccessRight = ldapAccessRight;
-        this.uid = "uid="+ username + "," + domain.toDN();
+        this.uid = ldapUser.getDn();
     }
 
     public String getUid() {

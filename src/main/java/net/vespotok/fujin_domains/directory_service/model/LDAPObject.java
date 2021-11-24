@@ -12,6 +12,7 @@ public class LDAPObject {
     protected ArrayList<LDAPAttribute> attributeArray;
     protected ArrayList<LDAPAccessRight> accessRights;
     protected LDAPDomainName domainName;
+    protected String dn;
 
     public LDAPObject() {
         this.attributeArray = new ArrayList<>();
@@ -33,9 +34,13 @@ public class LDAPObject {
         return getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
     }
 
-    public boolean hasRightsToModify(String username)
+    public boolean hasRightsToModify(LDAPUser ldapUser)
     {
-        String checkUid = "uid="+ username + "," + domainName.toDN();
+        if(ldapUser.getClass() == LDAPSystemAdministrator.class)
+        {
+            return true;
+        }
+        String checkUid = ldapUser.getDn();
         for(LDAPAccessRight right : accessRights)
         {
             String uid = right.getUid();

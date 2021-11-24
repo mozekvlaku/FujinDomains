@@ -2,6 +2,7 @@ package net.vespotok.fujin_domains.directory_service.model;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 
 public class LDAPDomain {
@@ -25,16 +26,16 @@ public class LDAPDomain {
         domainObjects = new ArrayList<>();
     }
 
-    public void addObject(LDAPObject object, String creatorUsername)
+    public void addObject(LDAPObject object, LDAPUser ldapUser)
     {
         object.setDomainName(this.domainName);
-        object.addAccessRight(new LDAPAccessRight(creatorUsername, this.domainName, LDAPAccessRightEnum.administrator));
-        object.addAccessRight(new LDAPAccessRight(creatorUsername, this.domainName, LDAPAccessRightEnum.addModifyDelete));
+        object.addAccessRight(new LDAPAccessRight(ldapUser, LDAPAccessRightEnum.administrator));
+        object.addAccessRight(new LDAPAccessRight(ldapUser, LDAPAccessRightEnum.addModifyDelete));
         domainObjects.add(object);
     }
 
-    public void changeObject(LDAPObject object, LDAPAttributeEnum attributeToChange, String newValue, String usernameOfChangingPerson) throws Exception {
-        if(object.hasRightsToModify(usernameOfChangingPerson))
+    public void changeObject(LDAPObject object, LDAPAttributeEnum attributeToChange, String newValue, LDAPUser ldapUser) throws Exception {
+        if(object.hasRightsToModify(ldapUser))
         {
             object.changeAttribute(attributeToChange, newValue);
         }
@@ -44,8 +45,8 @@ public class LDAPDomain {
         }
     }
 
-    public void memberOf(LDAPObject object, LDAPObject what, String usernameOfChangingPerson) throws Exception {
-        if(object.hasRightsToModify(usernameOfChangingPerson))
+    public void memberOf(LDAPObject object, LDAPObject what, LDAPUser ldapUser) throws Exception {
+        if(object.hasRightsToModify(ldapUser))
         {
             object.addAttribute(new LDAPAttribute(LDAPAttributeEnum.memberOf, what.getDN()));
         }
@@ -56,11 +57,23 @@ public class LDAPDomain {
     }
 
 
-    public LDAPObject getObjectByUid(String uid)
+    public LDAPObject getObjectByDn(String dn)
     {
         for(LDAPObject object : domainObjects)
         {
-            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.uid).getAttributeValueString(), uid))
+            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.dn).getAttributeValueString(), dn))
+            {
+                return object;
+            }
+        }
+        return null;
+    }
+
+    public LDAPObject getObjectByUserPrincipalName(String userPrincipalName)
+    {
+        for(LDAPObject object : domainObjects)
+        {
+            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.userPrincipalName).getAttributeValueString(), userPrincipalName))
             {
                 return object;
             }
@@ -71,6 +84,7 @@ public class LDAPDomain {
     public ArrayList<LDAPObject> searchObjectsByName(String query)
     {
         ArrayList<LDAPObject> returnObjects = new ArrayList<>();
+        query = query.toLowerCase();
         for(LDAPObject object : domainObjects)
         {
             LDAPAttribute name = object.getAttribute(LDAPAttributeEnum.name);
@@ -78,15 +92,20 @@ public class LDAPDomain {
             LDAPAttribute cn = object.getAttribute(LDAPAttributeEnum.cn);
             LDAPAttribute commonName = object.getAttribute(LDAPAttributeEnum.commonName);
             if(
-                (cn != null && cn.getAttributeValueString().contains(query)) ||
-                (sn != null && sn.getAttributeValueString().contains(query)) ||
-                (name != null && name.getAttributeValueString().contains(query))||
-                (commonName != null && commonName.getAttributeValueString().contains(query))
+                (cn != null && cn.getAttributeValueString().toLowerCase().contains(query)) ||
+                (sn != null && sn.getAttributeValueString().toLowerCase().contains(query)) ||
+                (name != null && name.getAttributeValueString().toLowerCase().contains(query))||
+                (commonName != null && commonName.getAttributeValueString().toLowerCase().contains(query))
             )
             {
                 returnObjects.add(object);
             }
         }
         return returnObjects;
+    }
+
+    public LDAPDomainName getDomainName()
+    {
+        return this.domainName;
     }
 }
