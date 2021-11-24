@@ -14,8 +14,8 @@ public class LDAPObject {
     protected LDAPDomainName domainName;
 
     public LDAPObject() {
-        this.attributeArray = new ArrayList<LDAPAttribute>();
-        this.accessRights = new ArrayList<LDAPAccessRight>();
+        this.attributeArray = new ArrayList<>();
+        this.accessRights = new ArrayList<>();
     }
 
     public void setDomainName(LDAPDomainName domainName)
@@ -66,7 +66,7 @@ public class LDAPObject {
     {
         for(LDAPAttribute attribute : attributeArray)
         {
-            if(attribute.getAttributeName() == attributeName.name())
+            if(Objects.equals(attribute.getAttributeName(), attributeName.name()))
             {
                 attribute.setAttributeValue(newValue);
                 return true;
@@ -80,7 +80,7 @@ public class LDAPObject {
     {
         for(LDAPAttribute attribute : attributeArray)
         {
-            if(attribute.getAttributeName() == attributeName.name())
+            if(Objects.equals(attribute.getAttributeName(), attributeName.name()))
             {
                 newValue += ("," + attribute.getAttributeValueString());
                 attribute.setAttributeValue(newValue);
@@ -94,11 +94,9 @@ public class LDAPObject {
     public LDAPAttribute getAttribute(LDAPAttributeEnum attributeName)
     {
         LDAPAttribute[] arrayOfAttributes = attributeArray.toArray(LDAPAttribute[]::new);
-        for(int i = 0; i<arrayOfAttributes.length; i++)
-        {
-            if(arrayOfAttributes[i].getAttributeName() == attributeName.name())
-            {
-                return arrayOfAttributes[i];
+        for (LDAPAttribute arrayOfAttribute : arrayOfAttributes) {
+            if (Objects.equals(arrayOfAttribute.getAttributeName(), attributeName.name())) {
+                return arrayOfAttribute;
             }
         }
         return null;
@@ -107,11 +105,9 @@ public class LDAPObject {
     public String getAttributeValue(LDAPAttributeEnum attributeName)
     {
         LDAPAttribute[] arrayOfAttributes = attributeArray.toArray(LDAPAttribute[]::new);
-        for(int i = 0; i<arrayOfAttributes.length; i++)
-        {
-            if(arrayOfAttributes[i].getAttributeName() == attributeName.name())
-            {
-                return arrayOfAttributes[i].getAttributeValueString();
+        for (LDAPAttribute arrayOfAttribute : arrayOfAttributes) {
+            if (Objects.equals(arrayOfAttribute.getAttributeName(), attributeName.name())) {
+                return arrayOfAttribute.getAttributeValueString();
             }
         }
         return null;
@@ -119,13 +115,12 @@ public class LDAPObject {
 
     public String toLDIF()
     {
-        String LDIFString = "";
+        StringBuilder LDIFString = new StringBuilder();
         LDAPAttribute[] arrayOfAttributes = attributeArray.toArray(LDAPAttribute[]::new);
-        for(int i = 0; i<arrayOfAttributes.length; i++)
-        {
-            LDIFString += (arrayOfAttributes[i].getAttributeName() + ": " + arrayOfAttributes[i].getAttributeValueString() + "\n");
+        for (LDAPAttribute arrayOfAttribute : arrayOfAttributes) {
+            LDIFString.append(arrayOfAttribute.getAttributeName()).append(": ").append(arrayOfAttribute.getAttributeValueString()).append("\n");
         }
-        return LDIFString;
+        return LDIFString.toString();
     }
 
 }

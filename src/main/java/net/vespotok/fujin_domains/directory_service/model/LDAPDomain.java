@@ -2,6 +2,7 @@ package net.vespotok.fujin_domains.directory_service.model;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LDAPDomain {
     private ArrayList<LDAPObject> domainObjects;
@@ -13,7 +14,7 @@ public class LDAPDomain {
     {
         this.domainName = domainName;
         this.organizationName = "No name domain";
-        domainObjects = new ArrayList<LDAPObject>();
+        domainObjects = new ArrayList<>();
     }
 
     public LDAPDomain(LDAPDomainName domainName, String organizationName, String organizationLogoURL)
@@ -21,7 +22,7 @@ public class LDAPDomain {
         this.domainName = domainName;
         this.organizationName = organizationName;
         this.organizationLogoURL = organizationLogoURL;
-        domainObjects = new ArrayList<LDAPObject>();
+        domainObjects = new ArrayList<>();
     }
 
     public void addObject(LDAPObject object, String creatorUsername)
@@ -59,7 +60,7 @@ public class LDAPDomain {
     {
         for(LDAPObject object : domainObjects)
         {
-            if(object.getAttribute(LDAPAttributeEnum.uid).getAttributeValueString() == uid)
+            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.uid).getAttributeValueString(), uid))
             {
                 return object;
             }
@@ -69,7 +70,7 @@ public class LDAPDomain {
 
     public ArrayList<LDAPObject> searchObjectsByName(String query)
     {
-        ArrayList<LDAPObject> returnObjects = new ArrayList<LDAPObject>();
+        ArrayList<LDAPObject> returnObjects = new ArrayList<>();
         for(LDAPObject object : domainObjects)
         {
             LDAPAttribute name = object.getAttribute(LDAPAttributeEnum.name);
