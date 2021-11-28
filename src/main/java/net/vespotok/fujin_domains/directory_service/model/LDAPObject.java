@@ -29,6 +29,37 @@ public class LDAPObject {
         this.accessRights.add(accessRight);
     }
 
+    public void addToObject(LDAPObject object)
+    {
+        String lastDn = object.getDN().split(",")[0];
+        String[] thisDn = getAttributeValue(LDAPAttributeEnum.dn).split(",");
+        ArrayList<String> resultDn = new ArrayList<>();
+        for(int i = 0; i < thisDn.length+1; i++)
+        {
+            if(i == 0)
+            {
+                resultDn.add(thisDn[0]);
+            }
+            else
+            {
+                if(i == 1)
+                {
+                    resultDn.add(lastDn);
+                }
+                else
+                {
+                    resultDn.add(thisDn[i-1]);
+                }
+            }
+        }
+        changeAttribute(LDAPAttributeEnum.dn, String.join(",", resultDn.toArray(new String[0])));
+    }
+
+    public LDAPAttribute[] getAttributes()
+    {
+        return this.attributeArray.toArray(new LDAPAttribute[0]);
+    }
+
     public String getDN()
     {
         return getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
@@ -62,6 +93,7 @@ public class LDAPObject {
         return false;
     }
 
+
     public void addAttribute(LDAPAttribute attribute)
     {
         this.attributeArray.add(attribute);
@@ -79,6 +111,21 @@ public class LDAPObject {
         }
         addAttribute(new LDAPAttribute(attributeName, newValue));
         return false;
+    }
+
+    public String getMemberships()
+    {
+        String memberships;
+        ArrayList<String> membershipArray = new ArrayList<>();
+        for(LDAPAttribute attribute : attributeArray)
+        {
+            if(Objects.equals(attribute.getAttributeName(), "memberOf"))
+            {
+                membershipArray.add(attribute.getAttributeValueString().split(",")[0].split("=")[1]);
+            }
+        }
+        memberships = String.join(",", membershipArray.toArray(new String[0]));
+        return memberships;
     }
 
     public boolean appendAttribute(LDAPAttributeEnum attributeName, String newValue)

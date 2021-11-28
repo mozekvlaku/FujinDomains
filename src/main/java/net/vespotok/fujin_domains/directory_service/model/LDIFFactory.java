@@ -35,7 +35,11 @@ public class LDIFFactory {
                             break; 
                         case "dn":
                             dnLine = value;
+                            object = workingDomain.getObjectByDn(dnLine);
                         break;
+                        case "add":
+
+                            break;
                         default:
                             this.actionLDIFLine(attribute, value, actionLine, object);
                             break;

@@ -41,6 +41,18 @@ public class UserObject extends LDAPObject {
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.telephoneNumber, telephoneNumber));
     }
 
+    public boolean checkPassword(String password)
+    {
+        if(password.equals(this.getAttributeValue(LDAPAttributeEnum.userPassword)))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public String getName()
     {
         return this.getAttributeValue(LDAPAttributeEnum.name);
