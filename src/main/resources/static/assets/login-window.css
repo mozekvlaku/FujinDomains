@@ -1,0 +1,52 @@
+.fdlf-loginscreen
+{
+    width: 100vw;
+    height: 100vh;
+    background-image: url("https://cdn.vespotok.net/img/domainswall.png");
+}
+.fdlf-loginbox
+{
+    width: 70%;
+    height: 60%;
+    background-color: rgba(255,255,255,0.89);
+    backdrop-filter: blur(70px);
+    border-radius: 20px;
+    -webkit-box-shadow: 0px 0px 21px -6px rgba(0,0,0,0.3);
+    box-shadow: 0px 0px 21px -6px rgba(0,0,0,0.3);
+}
+.fdlf-loginbox-image
+{
+    background-image: url("https://www.bing.com/th?id=OHR.CentennialBridge_EN-US6155436919_1920x1080.jpg");
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.fdlf-loginbox-cols
+{
+    height: 100%;
+}
+.fdlflbwf-logo img
+{
+    width: 150px;
+}
+.fdlf-loginbox-waterfall
+{
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 100px);
+    align-content: space-evenly;
+    margin: 50px;
+}
+.fdlflbwf-comments
+{
+    font-size: 0.8rem;
+    color: black;
+    opacity: 0.5;
+    max-width: 450px;
+}
+.fdlflbwf-action
+{
+    height: inherit;
+}

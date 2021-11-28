@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @SessionAttributes("name")
 public class LoginWindowController {
 
-    @RequestMapping(value="/login", method = RequestMethod.GET)
+    /*@RequestMapping(value="/login", method = RequestMethod.GET)
     public String showLoginPage(ModelMap model){
         return "login";
-    }
+    }*/
 
 }
