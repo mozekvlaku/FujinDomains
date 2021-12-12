@@ -1,5 +1,7 @@
 package net.vespotok.fujin_domains.directory_service.model.objects;
 
+import net.vespotok.fujin_domains.directory_service.helpers.Logging;
+import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
 import net.vespotok.fujin_domains.directory_service.model.LDAPDomainName;
@@ -20,5 +22,7 @@ public class GroupObject extends LDAPObject {
     {
         this.domainName = domainName;
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.dn, "cn="+this.name+","+this.domainName.toDN()));
+        this.l = new Logging(LoggingLevel.print, domainName, "Directory Group");
+
     }
 }

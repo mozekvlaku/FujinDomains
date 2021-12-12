@@ -16,4 +16,9 @@ public class LDAPSystemAdministrator extends LDAPUser {
         this.userObject = new UserObject("Administrator", "", "Administrator", administratorPassword, "", this.loginDomain.getDomainName());
         return Objects.equals(password, administratorPassword);
     }
+
+    public String getUsername()
+    {
+        return "Administrator";
+    }
 }

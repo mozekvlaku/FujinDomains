@@ -1,5 +1,7 @@
 package net.vespotok.fujin_domains.directory_service.model.objects;
 
+import net.vespotok.fujin_domains.directory_service.helpers.Logging;
+import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.LDAPDomainName;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
@@ -26,6 +28,8 @@ public class UserObject extends LDAPObject {
     {
         this.domainName = domainName;
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.dn, "uid="+this.username+","+this.domainName.toDN()));
+        this.l = new Logging(LoggingLevel.print, domainName, "Directory User");
+
     }
 
     public UserObject(String name, String surname, String username, String password, String telephoneNumber, LDAPDomainName domainName)

@@ -1,5 +1,7 @@
 package net.vespotok.fujin_domains.directory_service.model;
 
+import net.vespotok.fujin_domains.directory_service.helpers.Logging;
+import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAccessRight;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
 import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
@@ -14,14 +16,23 @@ public class LDAPObject {
     protected LDAPDomainName domainName;
     protected String dn;
 
+    protected Logging l;
+
     public LDAPObject() {
         this.attributeArray = new ArrayList<>();
         this.accessRights = new ArrayList<>();
+        l = new Logging(LoggingLevel.print);
     }
 
     public void setDomainName(LDAPDomainName domainName)
     {
         this.domainName = domainName;
+        l = new Logging(LoggingLevel.print, domainName, "Directory Object");
+    }
+
+    public LDAPDomainName getDomainName()
+    {
+        return this.domainName;
     }
 
     public void addAccessRight(LDAPAccessRight accessRight)
@@ -62,7 +73,10 @@ public class LDAPObject {
 
     public String getDN()
     {
-        return getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
+        if(getAttribute(LDAPAttributeEnum.dn).getAttributeValueString() == null)
+            return "that is initializing";
+            else
+                return getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
     }
 
     public boolean hasRightsToModify(LDAPUser ldapUser)
@@ -97,6 +111,7 @@ public class LDAPObject {
     public void addAttribute(LDAPAttribute attribute)
     {
         this.attributeArray.add(attribute);
+        l.log("Adding " + attribute.getAttributeName() + ", value " + attribute.getAttributeValueString());
     }
 
     public boolean changeAttribute(LDAPAttributeEnum attributeName, String newValue)
@@ -106,10 +121,13 @@ public class LDAPObject {
             if(Objects.equals(attribute.getAttributeName(), attributeName.name()))
             {
                 attribute.setAttributeValue(newValue);
+                l.log("Updating " + attribute.getAttributeName() + " setting value " + attribute.getAttributeValueString()+ " on object " + getDN());
                 return true;
             }
         }
         addAttribute(new LDAPAttribute(attributeName, newValue));
+        l.log("Adding " + attributeName + ", value " + newValue);
+
         return false;
     }
 
@@ -136,6 +154,7 @@ public class LDAPObject {
             {
                 newValue += ("," + attribute.getAttributeValueString());
                 attribute.setAttributeValue(newValue);
+                l.log("Updating " + attribute.getAttributeName() + " appending value " + newValue + " to object " + getDN());
                 return true;
             }
         }

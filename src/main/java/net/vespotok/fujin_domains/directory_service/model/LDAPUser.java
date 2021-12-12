@@ -47,4 +47,12 @@ public class LDAPUser {
     public String getDn() {
         return dn;
     }
+
+    public String getDN() {
+        return userObject.getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
+    }
+
+    public String getUsername() {
+        return username;
+    }
 }
