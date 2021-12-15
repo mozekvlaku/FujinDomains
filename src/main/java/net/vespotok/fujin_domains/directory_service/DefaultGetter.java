@@ -35,6 +35,7 @@ public class DefaultGetter {
         domain.addObject(new UserObject("Karel", "Douda", "doudaka", "1234", "+420 603 580 970"), user);
         domain.addObject(new UserObject("Bořek", "Hnisavý", "hnisabo", "1234", "+420 603 580 970"), user);
         domain2.addObject(new UserObject("Bořek", "Hnisavý", "hnisabo", "1234", "+420 603 580 970"), administrator2);
+        domain2.addObject(new UserObject("Jan", "Koryshoo", "korycja1", "1234", "+420 603 580 970"), administrator2);
         domain.addObject(new UserObject("Polenou", "Kracík", "polekra", "1234", "+420 603 580 970"), user);
 
         domain.addObject(new GroupObject("sudo", "SuperDoudausers"), user);
