@@ -2,10 +2,10 @@ package net.vespotok.fujin_domains.directory_service.model.objects;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomainName;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
-import net.vespotok.fujin_domains.directory_service.model.LDAPObject;
+import net.vespotok.fujin_domains.directory_service.model.*;
+import org.json.JSONObject;
+
+import java.util.Iterator;
 
 public class UserObject extends LDAPObject {
 
@@ -24,12 +24,24 @@ public class UserObject extends LDAPObject {
 
     }
 
+    public UserObject(JSONObject jsonObject)
+    {
+        Iterator<String> keys = jsonObject.keys();
+
+        while (keys.hasNext()) {
+            String key = keys.next();
+            l.log("Adding " + key + " attribute with value "+jsonObject.getString(key));
+            this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.valueOf(key), jsonObject.getString(key)));
+        }
+        this.username = this.getAttributeValue(LDAPAttributeEnum.userPrincipalName);
+        this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.objectClass, "person"));
+    }
+
     public void setDomainName(LDAPDomainName domainName)
     {
         this.domainName = domainName;
         this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.dn, "uid="+this.username+","+this.domainName.toDN()));
         this.l = new Logging(LoggingLevel.print, domainName, "Directory User");
-
     }
 
     public UserObject(String name, String surname, String username, String password, String telephoneNumber, LDAPDomainName domainName)

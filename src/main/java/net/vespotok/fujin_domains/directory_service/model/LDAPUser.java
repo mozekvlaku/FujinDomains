@@ -8,6 +8,7 @@ public class LDAPUser {
     protected LDAPDomain loginDomain;
     protected LDAPObject userObject;
     protected String dn;
+    protected String SID;
 
     public LDAPUser(LDAPDomain loginDomain)
     {
@@ -29,6 +30,15 @@ public class LDAPUser {
         return false;
     }
 
+    public boolean loginInternal(LDAPObject object)
+    {
+        this.username = object.getAttribute(LDAPAttributeEnum.userPrincipalName).getAttributeValueString();
+        this.password = object.getAttribute(LDAPAttributeEnum.userPassword).getAttributeValueString();
+        userObject = object;
+        dn = userObject.getDN();
+        return true;
+    }
+
     private String parseUsername(String username)
     {
         //userPrincipalName
@@ -46,6 +56,10 @@ public class LDAPUser {
 
     public String getDn() {
         return dn;
+    }
+    public String getSID() {
+        return userObject.getAttribute(LDAPAttributeEnum.objectSid).getAttributeValueString();
+
     }
 
     public String getDN() {

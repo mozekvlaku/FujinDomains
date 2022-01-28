@@ -6,9 +6,12 @@ import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.objects.ContainerObject;
 import net.vespotok.fujin_domains.directory_service.model.objects.GroupObject;
 import net.vespotok.fujin_domains.directory_service.model.objects.OrganizationalUnitObject;
+import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -43,17 +46,27 @@ public class LDAPDomain {
         credentialProvider = new CredentialProvider(this);
     }
 
-    public void addObject(LDAPObject object, LDAPUser ldapUser)
-    {
+    public void addObject(LDAPObject object, LDAPUser ldapUser) throws Exception {
         object.setDomainName(this.domainName);
         object.addAccessRight(new LDAPAccessRight(ldapUser, LDAPAccessRightEnum.administrator));
         object.addAccessRight(new LDAPAccessRight(ldapUser, LDAPAccessRightEnum.addModifyDelete));
         domainObjects.add(object);
         l.log("Added object "+object.getDN()+" by user " + ldapUser.getUsername());
+        if(object.getClass() == UserObject.class)
+        {
+            try {
+                object.addToObject(getObjectByDn("cn=Users," + this.getDomainName().toDN()));
+                memberOf(object, getObjectByDn("cn=Domain Users,cn=Users," + this.getDomainName().toDN()), ldapUser);
+            }
+            catch (Exception e)
+            {
+                l.error("Error while adding an object: " + e);
+            }
+        }
     }
 
     public void removeObject(LDAPObject object, LDAPUser ldapUser) throws Exception {
-        if(object.hasRightsToModify(ldapUser))
+        if(object.hasRightsToModify(ldapUser)||isPartOfGroup(object, getObjectByDn("cn=Domain Admins,cn=Users,dc=uhk,dc=cz")))
         {
             domainObjects.remove(object);
             l.log("Removed object "+object.getDN()+" by user " + ldapUser.getUsername());
@@ -66,7 +79,7 @@ public class LDAPDomain {
     }
 
     public void changeObject(LDAPObject object, LDAPAttributeEnum attributeToChange, String newValue, LDAPUser ldapUser) throws Exception {
-        if(object.hasRightsToModify(ldapUser))
+        if(object.hasRightsToModify(ldapUser)||isPartOfGroup(object, getObjectByDn("cn=Domain Admins,cn=Users,dc=uhk,dc=cz")))
         {
             object.changeAttribute(attributeToChange, newValue);
             l.log("Changed object "+object.getDN()+" by user " + ldapUser.getUsername());
@@ -79,9 +92,10 @@ public class LDAPDomain {
     }
 
     public void memberOf(LDAPObject object, LDAPObject what, LDAPUser ldapUser) throws Exception {
-        if(object.hasRightsToModify(ldapUser))
+        if(object.hasRightsToModify(ldapUser)||isPartOfGroup(object, getObjectByDn("cn=Domain Admins,cn=Users,dc=uhk,dc=cz")))
         {
-            object.addAttribute(new LDAPAttribute(LDAPAttributeEnum.memberOf, what.getDN()));
+            what.appendAttribute(LDAPAttributeEnum.member, object.getSID());
+            object.appendAttribute(LDAPAttributeEnum.memberOf, what.getSID());
             l.log("Added object "+object.getDN()+" to membership "+what.dn+" by user " + ldapUser.getUsername());
 
         }
@@ -90,7 +104,65 @@ public class LDAPDomain {
             throw new Exception("Fujin Domains Exception: You don't have rights to change this directory object.");
         }
     }
+    public void removeMember(LDAPObject object, LDAPObject what, LDAPUser ldapUser) throws Exception {
+        if(object.hasRightsToModify(ldapUser)||isPartOfGroup(object, getObjectByDn("cn=Domain Admins,cn=Users,dc=uhk,dc=cz")))
+        {
+            what.removeAppendedAttribute(LDAPAttributeEnum.member, object.getSID());
+            object.removeAppendedAttribute(LDAPAttributeEnum.memberOf, what.getSID());
+            l.log("Removed object "+object.getDN()+" from membership "+what.dn+" by user " + ldapUser.getUsername());
+        }
+        else
+        {
+            throw new Exception("Fujin Domains Exception: You don't have rights to change this directory object.");
+        }
+    }
 
+    public boolean isPartOfGroup(LDAPObject object, LDAPObject group)
+    {
+        if(group.getAttributeValue(LDAPAttributeEnum.member).contains(object.getSID()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public ArrayList<LDAPObject> getAllUsers()
+    {
+        ArrayList<LDAPObject> objectArrayList = new ArrayList<>();
+        for(LDAPObject object : domainObjects)
+        {
+            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.objectClass).getAttributeValueString(), "person"))
+            {
+                objectArrayList.add(object);
+            }
+        }
+        return objectArrayList;
+    }
+    public ArrayList<LDAPObject> getObjectsBySIDs(String sids)
+    {
+        ArrayList<LDAPObject> objectArrayList = new ArrayList<>();
+        String[] sidArray = sids.split(",");
+        for(LDAPObject object : domainObjects)
+        {
+            if(Arrays.stream(sidArray).anyMatch(object.getAttribute(LDAPAttributeEnum.objectSid).getAttributeValueString()::equals))
+            {
+                objectArrayList.add(object);
+            }
+        }
+        return objectArrayList;
+    }
+    public ArrayList<LDAPObject> getAllGroups()
+    {
+        ArrayList<LDAPObject> objectArrayList = new ArrayList<>();
+        for(LDAPObject object : domainObjects)
+        {
+            if(Objects.equals(object.getAttribute(LDAPAttributeEnum.objectClass).getAttributeValueString(), "group"))
+            {
+                objectArrayList.add(object);
+            }
+        }
+        return objectArrayList;
+    }
 
     public LDAPObject getObjectByDn(String dn)
     {
@@ -125,8 +197,7 @@ public class LDAPDomain {
         return null;
     }
 
-    public void loadDefaultGroups(LDAPSystemAdministrator administrator)
-    {
+    public void loadDefaultGroups(LDAPSystemAdministrator administrator) throws Exception {
         LDAPObject users = new ContainerObject("Users");
         LDAPObject computers = new ContainerObject("Computers");
         LDAPObject domainControllersOu = new OrganizationalUnitObject("Domain Controllers");
@@ -140,6 +211,7 @@ public class LDAPDomain {
         LDAPObject domainGuests = new GroupObject("Domain Guests", "Domain Guests");
         LDAPObject schemaAdmins = new GroupObject("Schema Admins", "Schema Admins");
         LDAPObject domainAdmins = new GroupObject("Domain Admins", "Domain Admins");
+        LDAPObject domainUsers = new GroupObject("Domain Users", "Domain Users");
         LDAPObject domainComputers = new GroupObject("Domain Computers", "Domain Computers");
 
         addObject(domainAdmins, administrator);
@@ -147,12 +219,14 @@ public class LDAPDomain {
         addObject(domainControllers, administrator);
         addObject(domainGuests, administrator);
         addObject(schemaAdmins, administrator);
+        addObject(domainUsers, administrator);
 
         domainComputers.addToObject(users);
         domainControllers.addToObject(users);
         domainAdmins.addToObject(users);
         domainGuests.addToObject(users);
         schemaAdmins.addToObject(users);
+        domainUsers.addToObject(users);
     }
 
     public LDAPObject getObjectBySAMName(String samName)

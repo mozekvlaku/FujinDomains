@@ -6,7 +6,7 @@
           class="fdlf-loginbox-credits uk-position-bottom-left uk-position-small"
         ></div>
       </div>
-      <div class="column is-half is-full-mobile uk-position-relative">
+      <div class="column is-half-tablet is-full-mobile uk-position-relative">
         <transition name="slide" mode="out-in">
           <div class="username-action" v-if="insertusername">
             <div class="fdlf-loginbox-waterfall">
@@ -162,12 +162,19 @@ export default {
       },
     };
   },
+  props: {
+        returnurl: {
+            type: String,
+            default: "",
+        }
+    },
   methods: {
     async checkDomain() {
+      
       this.system.domainwrong = false;
       this.system.usernamewrong = false;
       const hostname =
-        "http://auth.dc.vespotok.net:8080/api/v1/domain?username=" +
+        "http://localhost:8080/api/v1/domain?username=" +
         encodeURIComponent(this.login.username);
       this.system.debug = hostname;
       const results = await axios.get(hostname);
@@ -198,7 +205,7 @@ export default {
       } else {
         this.system.passwordempty = false;
         const hostname =
-          "http://auth.dc.vespotok.net:8080/api/v1/login?domain=" +
+          "http://localhost:8080/api/v1/login?domain=" +
           this.domain.domainname +
           "&username=" +
           encodeURIComponent(this.login.username) +
@@ -207,7 +214,10 @@ export default {
         const results = await axios.get(hostname);
         await new Promise((resolve) => setTimeout(resolve, 500));
         if (results.data.status === "success") {
-          alert(results.data.token);
+          var url = new URL(window.location.href);
+          var params = new URLSearchParams(url.search);
+          window.location.href =atob(params.get("r")) + "?token="+results.data.token+"&domain="+this.domain.domainname;
+          //alert();
         } else {
           this.system.passwordwrong = true;
         }

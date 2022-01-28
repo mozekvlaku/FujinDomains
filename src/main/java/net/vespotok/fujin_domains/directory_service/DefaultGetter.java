@@ -8,16 +8,18 @@ import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
 public class DefaultGetter {
     private static LDAPDomain domain;
     private static LDAPDomain domain2;
+    private static LDAPDomain domain3;
     public DefaultGetter(DirectoryServer directoryServer) throws Exception {
         LDAPDomain domainToAdd1 = new LDAPDomain(new LDAPDomainName("dc.vespotok.net", LDAPDomainNameTypeEnum.Win2000Style), "Vespotok", "https://cdn.vespotok.net/img/vespotok_black.svg");
         LDAPDomain domainToAdd2 = new LDAPDomain(new LDAPDomainName("uhk.cz", LDAPDomainNameTypeEnum.Win2000Style), "UHK", "https://www.uhk.cz/img/svg/logo/uhk-uhk-cs_hor.svg");
-        LDAPDomain domainToAdd3 = new LDAPDomain(new LDAPDomainName("BUILTIN", LDAPDomainNameTypeEnum.NT4Style), "", "");
+        LDAPDomain domainToAdd3 = new LDAPDomain(new LDAPDomainName("BUILTIN", LDAPDomainNameTypeEnum.NT4Style), "Systém Fujin Domains", "http://cdn.vespotok.net/img/fujindomainshorizontal.svg");
         directoryServer.domainPool.addDomain(domainToAdd1);
         directoryServer.domainPool.addDomain(domainToAdd2);
         directoryServer.domainPool.addDomain(domainToAdd3);
 
         domain = directoryServer.domainPool.getDomainByDomainName("uhk.cz");
         domain2 = directoryServer.domainPool.getDomainByDomainName("dc.vespotok.net");
+        domain3 = directoryServer.domainPool.getDomainByDomainName("builtin.local");
 
         LDAPSystemAdministrator administrator = new LDAPSystemAdministrator(domain);
         LDAPUser user = new LDAPUser(domain);
@@ -27,9 +29,15 @@ public class DefaultGetter {
         LDAPUser user2 = new LDAPUser(domain2);
 
         administrator2.authenticate("admin1");
+        LDAPSystemAdministrator administrator3 = new LDAPSystemAdministrator(domain3);
+        LDAPUser user3 = new LDAPUser(domain3);
+
+        administrator3.authenticate("admin1");
+        domain3.addObject(new UserObject("Admin", "Sysadmin", "Administrator", "admin1", ""), administrator3);
 
 
         domain.addObject(new UserObject("Tomáš", "Kracík", "namulnae", "1234", "+420 603 580 970"), administrator);
+        domain2.addObject(new UserObject("Tomáš", "Kracík", "namulnae", "1234", "+420 603 580 970"), administrator);
         user.login("namulnae", "1234");
         domain.loadDefaultGroups(administrator);
         domain.addObject(new UserObject("Karel", "Douda", "doudaka", "1234", "+420 603 580 970"), user);
@@ -54,6 +62,7 @@ public class DefaultGetter {
 
         domain.changeObject(domain.searchObjectsByName("Poleno").get(0), LDAPAttributeEnum.telephoneNumber, "123454545", user);
         domain.changeObject(domain.searchObjectsByName("Douda").get(0), LDAPAttributeEnum.friendlyCountryName, "Meknijsko-Lurk", user);
+        domain.changeObject(domain.searchObjectsByName("Tomáš Kracík").get(0), LDAPAttributeEnum.thumbnailPhoto, "https://vespotok.net/namulnae.png", administrator);
 
         LDIFFactory ldifFactory = new LDIFFactory(domain, user);
 

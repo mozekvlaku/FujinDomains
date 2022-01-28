@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.vespotok.net/fujin/css/raijin.ui.css"
+    />
+    <style>
+      body {
+        background-color: rgb(var(--vs-background))!important;
+        color: rgb(var(--vs-text))!important;
+      }
+      th {
+          color: rgb(var(--vs-text))!important;
+      }
+      .router-content
+      {
+        margin-left: 290px;
+        margin-top: 50px;
+        margin-right: 30px;
+      }
+
+      .router-content.collapsed
+      {
+        margin-left: 80px;
+        margin-top: 50px;
+        margin-right: 30px;
+      }
+      .vs-sidebar-content.absolute.open
+      {
+        position: fixed!important;
+        margin-top:10px;
+        margin-bottom: 10px;
+        height: calc(100% - 20px);
+      }
+      html{
+        overflow: auto;
+      }
+    </style>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+    <body class="animations blur font cursor">
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
+  </body>
+</html>
