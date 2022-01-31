@@ -1,4 +1,9 @@
-package net.vespotok.fujin_domains.directory_service.model;
+package net.vespotok.fujin_domains.directory_service.helpers;
+
+import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
+import net.vespotok.fujin_domains.directory_service.model.LDAPDomain;
+import net.vespotok.fujin_domains.directory_service.model.LDAPObject;
+import net.vespotok.fujin_domains.directory_service.model.LDAPUser;
 
 import java.util.Arrays;
 
@@ -53,7 +58,7 @@ public class LDIFFactory {
         switch (action)
         {
             case "modify":
-                workingDomain.changeObject(object,LDAPAttributeEnum.valueOf(attribute),value,ldapUser);
+                workingDomain.changeObject(object, LDAPAttributeEnum.valueOf(attribute),value,ldapUser);
                 break;
         }
     }

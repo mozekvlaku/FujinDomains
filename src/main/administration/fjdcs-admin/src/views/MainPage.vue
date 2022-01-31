@@ -5,9 +5,14 @@
     <vs-row align="center" justify="center">
       <vs-col w="6" style="text-align:center">
         <div class="center con-avatars">
-          <vs-avatar size="90" style="margin:auto"  :loading="isLoaded">
-            <img :src="user.thumbnailPhoto" alt="">
+          <vs-avatar size="90" style="margin:auto;font-size: 2rem;"  :loading="isLoaded">
+            
+            <img :src="user.thumbnailPhoto"  v-if="profile">
+            <template #text v-if="!profile">
+                {{user.name}}
+            </template>
           </vs-avatar>
+          
           <h1>
             Vítejte, {{user.name}}
           </h1>
@@ -43,7 +48,7 @@
   </vs-card>
       </vs-col>
       <vs-col w="4" vs-type="flex" vs-justify="center" vs-align="center" style="justify-content: center;display: flex;">
-        <vs-card type="3">
+        <vs-card type="3" @click="$router.push({ path: '/federations' })">
     <template #title>
       <h3>Zkontrolujte federace</h3>
     </template>
@@ -79,13 +84,18 @@
     data() {
       return {
         user: this.$store.state,
-        isLoaded: true
+        isLoaded: true,
+        profile: true
       }
     },
     created() {
       this.$parent.searchingDomain = false;
       this.$parent.activePage = "/";
       this.isLoaded = false;
+      if(this.user.thumbnailPhoto == undefined || this.user.thumbnailPhoto == "")
+      {
+        this.profile = false;
+      }
     },
   }
 </script>

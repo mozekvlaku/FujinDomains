@@ -25,6 +25,11 @@ public class Logging {
         this.level = level;
         this.category = "";
     }
+
+    public void setDomainName(LDAPDomainName domainName) {
+        this.domainName = domainName;
+    }
+
     public Logging(LoggingLevel level, LDAPDomainName domainName, String category)
     {
         this.level = level;

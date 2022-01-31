@@ -13,7 +13,7 @@ public class LDAPSystemAdministrator extends LDAPUser {
 
     public final boolean authenticate(String password)
     {
-        this.userObject = new UserObject("Administrator", "", "Administrator", administratorPassword, "", this.loginDomain.getDomainName());
+        this.userObject = new UserObject("Administrator", "", "Administrator", administratorPassword, "", this.loginDomain);
         return Objects.equals(password, administratorPassword);
     }
 

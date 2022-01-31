@@ -154,7 +154,7 @@
                 activeUser: {},
                 page: 1,
                 search: '',
-                max: 5,
+                max: 20,
                 active: 0,
                 editActive: false,
                 edit: null,

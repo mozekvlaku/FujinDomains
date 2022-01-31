@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +50,7 @@ public class DirectoryController {
             JSONObject object = new JSONObject();
             for(LDAPObject ldapObject : results)
             {
-                object.put(ldapObject.getDN(), ldapObject.toJSONObject());
+                object.put(ldapObject.getDn(), ldapObject.toJSONObject());
             }
             JSONObject returnObject = new JSONObject();
             returnObject.put("status", "success");
@@ -82,6 +85,24 @@ public class DirectoryController {
         }
         return "401";
     }
+    @RequestMapping(value = "/api/v1/getLDIF", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth", "dn"})
+    public String getLDIF(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn) throws Exception {
+        LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
+        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
+        Credential credential = credentialProvider.getCredential(authToken);
+
+        if(credential != null)
+        {
+            String object = "";
+            object = targetDomain.getObjectByDn(dn).toLDIF();
+            JSONObject returnObject = new JSONObject();
+            returnObject.put("status", "success");
+            returnObject.put("data", object);
+            returnObject.put("version", "Vespotok Fujin Domain Service 1.0.0");
+            return returnObject.toString();
+        }
+        return "401";
+    }
     @RequestMapping(value = "/api/v1/users", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth"})
     public String getUsers(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
@@ -94,7 +115,7 @@ public class DirectoryController {
             JSONObject object = new JSONObject();
             for(LDAPObject ldapObject : results)
             {
-                object.put(ldapObject.getDN(), ldapObject.toJSONObject());
+                object.put(ldapObject.getDn(), ldapObject.toJSONObject());
             }
             JSONObject returnObject = new JSONObject();
             returnObject.put("status", "success");
@@ -116,7 +137,7 @@ public class DirectoryController {
             JSONObject object = new JSONObject();
             for(LDAPObject ldapObject : results)
             {
-                object.put(ldapObject.getDN(), ldapObject.toJSONObject());
+                object.put(ldapObject.getDn(), ldapObject.toJSONObject());
             }
             JSONObject returnObject = new JSONObject();
             returnObject.put("status", "success");
@@ -139,7 +160,7 @@ public class DirectoryController {
             JSONObject object = new JSONObject();
             for(LDAPObject ldapObject : results)
             {
-                object.put(ldapObject.getDN(), ldapObject.toJSONObject());
+                object.put(ldapObject.getDn(), ldapObject.toJSONObject());
             }
             JSONObject returnObject = new JSONObject();
             returnObject.put("status", "success");
@@ -159,21 +180,25 @@ public class DirectoryController {
         {
             var message = "Vše je v pořádku.";
             var status = "success";
-            try {
+           try {
                 JSONObject dataParse = new JSONObject(data);
                 Iterator<String> keys = dataParse.keys();
                 LDAPUser checkUsr = new LDAPUser(targetDomain);
                 checkUsr.loginInternal(credential.getUser());
-                l.log("Preparing to change " + dataParse.length() + " attributes. User " + checkUsr.getUsername());
+                l.log("Preparing to change " + dataParse.length() + " attributes. User " + checkUsr.getUsername() + " object " + targetDomain.getObjectByDn(dn).getDn());
 
                 while (keys.hasNext()) {
 
                     String key = keys.next();
                     l.log("Changing " + key + " attribute.");
+                    l.log("KEY: " + LDAPAttributeEnum.valueOf(key));
+                    l.log("VAL: " + dataParse.getString(key));
+                    l.log("USR: " + checkUsr.getSID());
 
                     targetDomain.changeObject(targetDomain.getObjectByDn(dn), LDAPAttributeEnum.valueOf(key), dataParse.getString(key), checkUsr);
                 }
-            }
+
+           }
             catch (Exception e){
                 l.error("Error while trying to change an object. " + e);
                 message = "Stala se chyba, zřejmě nemáte přístup k objektu. Další informace: " + e;
@@ -232,6 +257,7 @@ public class DirectoryController {
                 checkUsr.loginInternal(credential.getUser());
                 l.log("Preparing to delete " + dn + " object. User " + checkUsr.getUsername());
                 targetDomain.removeMember(targetDomain.getObjectByDn(dnToRemove), targetDomain.getObjectByDn(dn), checkUsr);
+
             }
             catch (Exception e){
                 l.error("Error while trying to delete an object. " + e);
@@ -261,6 +287,7 @@ public class DirectoryController {
                 checkUsr.loginInternal(credential.getUser());
                 l.log("Preparing to add " + dn + " object. User " + checkUsr.getUsername());
                 targetDomain.memberOf(targetDomain.getObjectByDn(dnToAdd), targetDomain.getObjectByDn(dn), checkUsr);
+
             }
             catch (Exception e){
                 l.error("Error while trying to add an object. " + e);
@@ -293,7 +320,7 @@ public class DirectoryController {
                 switch (objectclass)
                 {
                     case "person":
-                        LDAPObject userObject = new UserObject(jsonObject);
+                        LDAPObject userObject = new UserObject(jsonObject, targetDomain);
                         targetDomain.addObject(userObject, checkUsr);
                     break;
                 }

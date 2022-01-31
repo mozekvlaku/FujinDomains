@@ -1,11 +1,34 @@
 package net.vespotok.fujin_domains.directory_service.model;
 
+import javax.persistence.*;
+
+@Entity
 public class LDAPDomainName {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(name = "NT4Name")
     private String NT4Name;
+    @Column(name = "NT5Name")
     private String NT5Name;
+    @Column(name = "DN")
     private String DN;
 
+
     private String defaultTld = "local";
+
+    public LDAPDomainName() {
+
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public LDAPDomainName(String name, LDAPDomainNameTypeEnum domainNameType)
     {
@@ -63,5 +86,32 @@ public class LDAPDomainName {
     public String toNT4Style()
     {
         return this.NT4Name;
+    }
+
+    public String getNT4Name() {
+        return NT4Name;
+    }
+
+    public void setNT4Name(String NT4Name) {
+        this.NT4Name = NT4Name;
+        createFromNT4Name(NT4Name);
+    }
+
+    public String getNT5Name() {
+        return NT5Name;
+    }
+
+    public void setNT5Name(String NT5Name) {
+        this.NT5Name = NT5Name;
+        createFromNT5Name(NT5Name);
+    }
+
+    public String getDN() {
+        return DN;
+    }
+
+    public void setDN(String DN) {
+        this.DN = DN;
+        createFromDN(DN);
     }
 }

@@ -22,9 +22,9 @@
         <template #icon>
           <i class='bx bx-home'></i>
         </template>
-        Můj účet
+        Domů
       </vs-sidebar-item>
-      <vs-sidebar-item id="federations">
+      <vs-sidebar-item id="federations" tag="router-link" :to="{ path: '/federations' }">
         <template #icon>
           <i class='bx bx-shape-triangle'></i>
         </template>
@@ -64,6 +64,18 @@
             <i class='bx bx-user'></i>
           </template>
           Uživatelé
+        </vs-sidebar-item>
+        <vs-sidebar-item id="domainUser" v-if="active == 'domainUser'">
+          <template #icon>
+            <i class='bx bx-user-circle'></i>
+          </template>
+          Uživatel
+        </vs-sidebar-item>
+        <vs-sidebar-item id="domainUserNew" v-if="active == 'domainUserNew'">
+          <template #icon>
+            <i class='bx bxs-user-plus'></i>
+          </template>
+          Nový uživatel
         </vs-sidebar-item>
         <vs-sidebar-item id="domainGroups" tag="router-link" :to="{ path: '/domain/'+  domain.domainName+'/groups' }">
           <template #icon>

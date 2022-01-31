@@ -269,7 +269,7 @@
             }
         },
         created() {
-            this.$parent.activePage = "domainLink";
+            this.$parent.activePage = "domainUserNew";
         },
     }
     

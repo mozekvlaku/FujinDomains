@@ -23,13 +23,15 @@ public class UserController {
     public UserController(DirectoryServer directoryServer) {
         this.directoryServer = directoryServer;
         Logging l = new Logging(LoggingLevel.print, new LDAPDomainName("BUILTIN", LDAPDomainNameTypeEnum.NT4Style), "Login System");
-        l.log("Registered new Login Controller on server "+directoryServer.getServerAddress()+".");
+        l.log("Registered new Login Controller on server "+directoryServer.getServerAddress()+". System ready.");
     }
 
     @RequestMapping(value = "/api/v1/login", method = RequestMethod.GET, produces = "application/json", params = {"domain", "username", "password"})
     public String tryLogin(@RequestParam("domain") String domain,@RequestParam("password") String password,@RequestParam("username") String username) {
         LDAPDomain ldapDomain = this.directoryServer.domainPool.getDomainByDomainName(domain);
         CredentialProvider cp = ldapDomain.getCredentialProvider();
+        cp.setLdapDomain(ldapDomain);
+        ldapDomain.setDomainName(ldapDomain.getDomainName());
         Logging l = new Logging(LoggingLevel.print, ldapDomain.getDomainName(), "Login System");
         l.log("Trying to login with username " + username);
         Credential login = cp.attemptLoginByPrincipalName(username,password);

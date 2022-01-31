@@ -7,6 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 @SpringBootApplication
 public class FujinDirectoryAndCredentialProviderServiceApplication {
 
@@ -14,13 +18,6 @@ public class FujinDirectoryAndCredentialProviderServiceApplication {
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(FujinDirectoryAndCredentialProviderServiceApplication.class, args);
-        FujinDirectoryAndCredentialProviderServiceApplication fjdcs = new FujinDirectoryAndCredentialProviderServiceApplication();
-        fjdcs.defaults();
-    }
-
-    public void defaults() throws Exception {
-        DirectoryServer server = context.getBean("getThisServer", DirectoryServer.class);
-        DefaultGetter df = new DefaultGetter(server);
     }
 
 }

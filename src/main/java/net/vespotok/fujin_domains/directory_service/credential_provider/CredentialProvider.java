@@ -2,10 +2,7 @@ package net.vespotok.fujin_domains.directory_service.credential_provider;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomain;
-import net.vespotok.fujin_domains.directory_service.model.LDAPObject;
+import net.vespotok.fujin_domains.directory_service.model.*;
 import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
 import org.json.JSONObject;
 
@@ -21,12 +18,24 @@ public class CredentialProvider {
 
     private Logging l;
 
+    public void setLdapDomain(LDAPDomain ldapDomain) {
+        this.ldapDomain = ldapDomain;
+        l.setDomainName(ldapDomain.getDomainName());
+        l.log("Credential Provider is changing to serving " + ldapDomain.getDomainName().toWin2000Style() + " domain.");
+
+    }
+
     public CredentialProvider(LDAPDomain ldapDomain)
     {
         this.ldapDomain = ldapDomain;
         credentials = new ArrayList<>();
-        l = new Logging(LoggingLevel.print, ldapDomain.getDomainName(),"Credential Provider");
-        l.log("Created a Credential Provider serving " + ldapDomain.getDomainName().toWin2000Style() + " domain.");
+        LDAPDomainName domainName = ldapDomain.getDomainName();
+        l = new Logging(LoggingLevel.print, domainName,"Credential Provider");
+        l.log("Created a Credential Provider serving " + domainName.toWin2000Style() + " domain.");
+    }
+
+    public ArrayList<Credential> getCredentials() {
+        return credentials;
     }
 
     public Credential attemptLoginByPrincipalName(String username, String password)

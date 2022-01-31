@@ -60,5 +60,11 @@ public enum LDAPAttributeEnum {
     fujinHome,
     fujinId,
     fujinSh,
-    fujinGui
+    fujinGui,
+    federationFacebook,
+    federationTwitter,
+    federationFujinDomains,
+    federationApple,
+    federationMojeID,
+    federationGoogle
 }

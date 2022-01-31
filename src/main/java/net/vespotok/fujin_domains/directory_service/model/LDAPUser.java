@@ -22,7 +22,9 @@ public class LDAPUser {
 
         userObject = loginDomain.getObjectByUserPrincipalName(parseUsername(username));
 
-        if(Objects.equals(userObject.getAttribute(LDAPAttributeEnum.userPassword).getAttributeValueString(), password))
+        String userPassword = userObject.getAttributeValue(LDAPAttributeEnum.userPassword);
+
+        if(Objects.equals(userPassword, password))
         {
             dn = userObject.getDN();
             return true;
@@ -55,11 +57,16 @@ public class LDAPUser {
     }
 
     public String getDn() {
-        return dn;
+        if(userObject.getAttribute(LDAPAttributeEnum.dn).getAttributeValueString() == null)
+            return userObject.getDn();
+        else
+            return userObject.getAttribute(LDAPAttributeEnum.dn).getAttributeValueString();
     }
     public String getSID() {
-        return userObject.getAttribute(LDAPAttributeEnum.objectSid).getAttributeValueString();
-
+        if(userObject.getAttribute(LDAPAttributeEnum.objectSid).getAttributeValueString() == null)
+            return userObject.getSID();
+        else
+            return userObject.getAttribute(LDAPAttributeEnum.objectSid).getAttributeValueString();
     }
 
     public String getDN() {

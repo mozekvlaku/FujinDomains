@@ -9,6 +9,9 @@ import DomainGroup from '../views/DomainGroup.vue'
 import DomainUserNew from '../views/DomainUserNew.vue'
 import DomainGroups from '../views/DomainGroups.vue'
 import Schema from '../views/Schema.vue'
+import Server from '../views/Server.vue'
+import MyFederations from '../views/MyFederations.vue'
+import E404 from '../views/404.vue'
 
 Vue.use(VueRouter)
 
@@ -22,6 +25,14 @@ const routes = [
     path: '/domain-list',
     name: 'Seznam domén',
     component: Domains
+  },{
+    path: '/server',
+    name: 'Server',
+    component: Server
+  },{
+    path: '/federations',
+    name: 'Mé federace',
+    component: MyFederations
   },
   {
     path: '/domain/:domainName',
@@ -70,6 +81,11 @@ const routes = [
     name: 'Schéma domény',
     component: Schema,
     props: (route) => ({domainName: Vue.observable(new Counter(route.params.domainName))}),
+  },
+  {
+    path: '*',
+    name: 'Nenalezeno',
+    component: E404
   },
 ]
 

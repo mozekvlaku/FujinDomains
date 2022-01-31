@@ -11,6 +11,9 @@
             <vs-avatar primary @click="adding=true" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-group'></i>
             </vs-avatar>
+            <vs-avatar primary @click="exportLDIF" style="margin-left:15px; cursor:pointer">
+                <i class='bx bx-export'></i>
+            </vs-avatar>
             <vs-avatar danger @click="deleting=true" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-x'></i>
             </vs-avatar>
@@ -26,8 +29,8 @@
         <div class="columns">
             <div class="column is-narrow">
                 <vs-avatar square size="320" style="font-size: 5rem;">
-                    <img :src="currentFormData.thumbnailPhoto" v-if="picture">
-                    <template #text v-if="!picture">
+                    <img :src="currentFormData.thumbnailPhoto"  v-if="!(currentFormData.thumbnailPhoto === '' || currentFormData.thumbnailPhoto === undefined)">
+                    <template #text v-if="currentFormData.thumbnailPhoto === '' || currentFormData.thumbnailPhoto === undefined">
                         {{currentFormData.cn}}
                     </template>
                 </vs-avatar><br>
@@ -422,6 +425,32 @@
                     }
                     this.getObjects(this.currentFormData.memberOf);
                     
+                }
+                if (results.data === 401) {
+                    this.openNotification('top-center', 'danger',
+                        `<i class='bx bx-select-multiple' ></i>`, 'K tomuto zdroji nemáte přístup!',
+                        'Upozornění zabezpečení FJDCS');
+                }
+                this.$Progress.finish();
+                loading.close();
+            },async exportLDIF() {
+                const loading = this.$vs.loading({
+                    color: 'primary',
+                    type: 'corners'
+                })
+                const hostname = this.$g('server_url') + "/v1/getLDIF?dn=" + this.domainName.domainName.userDn +
+                    "&domain=" + this.domainName.domainName.domainName +
+                    "&auth=" + this.$store.state.token;
+
+                const results = await axios.get(hostname);
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                if (results.data.status === "success") {
+                        const blob = new Blob([results.data.data], { type: 'application/text' })
+                        const link = document.createElement('a')
+                        link.href = URL.createObjectURL(blob)
+                        link.download = this.currentFormData.cn + ".ldif"
+                        link.click()
+                        URL.revokeObjectURL(link.href)
                 }
                 if (results.data === 401) {
                     this.openNotification('top-center', 'danger',
