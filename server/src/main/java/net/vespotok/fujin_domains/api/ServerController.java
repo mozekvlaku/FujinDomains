@@ -7,13 +7,10 @@ import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-
+@CrossOrigin(origins = "http://localhost", maxAge = 3600)
 @RestController
 public class ServerController {
     @Autowired

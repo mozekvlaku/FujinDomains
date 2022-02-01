@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-
+@CrossOrigin(origins = "http://localhost", maxAge = 3600)
 @RestController
 public class UserController {
     @Autowired
