@@ -6,14 +6,9 @@ import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.*;
 import org.json.JSONObject;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.Entity;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.*;
 
 @Entity

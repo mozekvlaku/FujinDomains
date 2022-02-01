@@ -2,8 +2,6 @@ package net.vespotok.fujin_domains.directory_service.model;
 
 import javax.persistence.*;
 
-import java.util.ArrayList;
-
 import static java.lang.Integer.parseInt;
 
 @Entity

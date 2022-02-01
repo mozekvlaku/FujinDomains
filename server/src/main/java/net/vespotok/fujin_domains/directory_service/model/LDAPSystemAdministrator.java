@@ -4,7 +4,6 @@ import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Objects;
 
 public class LDAPSystemAdministrator extends LDAPUser {
     private String administratorPassword = "admin1";

@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.vespotok</groupId>
     <artifactId>fujin_domains</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Fujin Directory and Credential Provider Service</name>
     <description>Fujin Directory and Credential Provider Service</description>
     <properties>
@@ -50,7 +50,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.7.0</version>
+        </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

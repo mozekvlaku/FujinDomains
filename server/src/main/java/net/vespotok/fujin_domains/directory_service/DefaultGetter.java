@@ -1,14 +1,7 @@
 package net.vespotok.fujin_domains.directory_service;
 
-import net.vespotok.fujin_domains.directory_service.helpers.LDIFFactory;
 import net.vespotok.fujin_domains.directory_service.model.*;
-import net.vespotok.fujin_domains.directory_service.model.objects.GroupObject;
 import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
-
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 public class DefaultGetter {
     private static LDAPDomain internalDomain;

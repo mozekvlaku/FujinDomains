@@ -2,7 +2,6 @@ package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.DirectoryServer;
 import net.vespotok.fujin_domains.credential_provider.Credential;
-import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
 import net.vespotok.fujin_domains.credential_provider.DomainDispatcher;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;

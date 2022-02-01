@@ -5,8 +5,6 @@ import net.vespotok.fujin_domains.directory_service.model.LDAPDomain;
 import net.vespotok.fujin_domains.directory_service.model.LDAPObject;
 import net.vespotok.fujin_domains.directory_service.model.LDAPUser;
 
-import java.util.Arrays;
-
 public class LDIFFactory {
     private LDAPDomain workingDomain;
     private LDAPUser ldapUser;

@@ -2,9 +2,6 @@ package net.vespotok.fujin_domains.directory_service.model;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAccessRight;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttribute;
-import net.vespotok.fujin_domains.directory_service.model.LDAPAttributeEnum;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.json.JSONObject;
