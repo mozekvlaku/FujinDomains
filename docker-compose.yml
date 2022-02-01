@@ -1,15 +1,15 @@
 version: '3.8'
 services:
   login-window:
-    image: php:8.0-apache
+    image: httpd:2.4
     volumes:
-      - ./login_window/public/:/var/www/html/
+      - ./login_window/public/:/usr/local/apache2/htdocs/
     ports:
       - 8081:80
   administration:
-    image: php:8.0-apache
+    image: httpd:2.4
     volumes:
-      - ./administration/fjdcs-admin/public/:/var/www/html/
+      - ./administration/fjdcs-admin/public/:/usr/local/apache2/htdocs/
     ports:
       - 8082:80
   db:
@@ -21,7 +21,9 @@ services:
       - 3306:3306
     command: --init-file /data/application/init.sql
     volumes:
-        - ./db/init.sql:/data/application/init.sql
+      - ./db/init.sql:/data/application/init.sql
+    networks:
+      - dbconn
   server:
     container_name: server
     image: openjdk:11
@@ -33,3 +35,9 @@ services:
     volumes:
     - ./server/target:/usr/src/server
     command: bash -c "java -jar /usr/src/server/fujin_domains-1.0.0.jar"
+    networks:
+      - dbconn
+networks:
+  dbconn:
+    external: true
+    name: dbnetwork
