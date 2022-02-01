@@ -1,9 +1,9 @@
-package net.vespotok.fujin_domains.directory_service.api;
+package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.DirectoryServer;
-import net.vespotok.fujin_domains.directory_service.credential_provider.Credential;
-import net.vespotok.fujin_domains.directory_service.credential_provider.CredentialProvider;
-import net.vespotok.fujin_domains.directory_service.credential_provider.DomainDispatcher;
+import net.vespotok.fujin_domains.credential_provider.Credential;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.credential_provider.DomainDispatcher;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.*;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 @RestController
 public class DomainDispatcherController {
@@ -45,8 +44,7 @@ public class DomainDispatcherController {
     public String getDomainLogins(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
 
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -74,8 +72,7 @@ public class DomainDispatcherController {
     @RequestMapping(value = "/api/v1/changedomain", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "data"})
     public String changeDomain(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("data") String data) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -90,6 +87,36 @@ public class DomainDispatcherController {
                 targetDomain.changeDomain(dataParse.getString("organizationName"), dataParse.getString("organizationLogo"), checkUsr);
                 l.log("Preparing to change domain. User " + checkUsr.getUsername());
 
+            }
+            catch (Exception e){
+                l.error("Error while trying to change an object. " + e);
+                message = "Stala se chyba, zřejmě nemáte přístup k objektu. Další informace: " + e;
+                status = "error";
+            }
+            JSONObject returnObject = new JSONObject();
+            returnObject.put("status", status);
+            returnObject.put("message", message);
+            returnObject.put("version", "Vespotok Fujin Domain Service 1.0.0");
+            return returnObject.toString();
+        }
+        return "401";
+    }
+    @RequestMapping(value = "/api/v1/removedomain", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth"})
+    public String changeDomain(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
+        LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
+
+        if(credential != null)
+        {
+            var message = "Vše je v pořádku.";
+            var status = "success";
+            try {
+                LDAPUser checkUsr = new LDAPUser(targetDomain);
+                checkUsr.loginInternal(credential.getUser());
+                if(targetDomain.getAh().hasRightsToServerManipulate(checkUsr))
+                {
+                    this.directoryServer.domainPool.removeDomain(targetDomain);
+                }
             }
             catch (Exception e){
                 l.error("Error while trying to change an object. " + e);

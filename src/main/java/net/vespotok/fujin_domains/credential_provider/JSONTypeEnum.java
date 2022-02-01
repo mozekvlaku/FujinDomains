@@ -1,4 +1,4 @@
-package net.vespotok.fujin_domains.directory_service.credential_provider;
+package net.vespotok.fujin_domains.credential_provider;
 
 public enum JSONTypeEnum {
     fujinAccount,

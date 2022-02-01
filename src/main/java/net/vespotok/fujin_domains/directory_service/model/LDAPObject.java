@@ -247,7 +247,7 @@ public class LDAPObject {
 
     public void addAttribute(LDAPAttribute attribute) {
         this.attributeArray.add(attribute);
-        l.log("Adding " + attribute.getAttributeName() + ", value " + attribute.getAttributeValueString());
+        l.log("Adding " + attribute.getAttributeName() + ", value " + attribute.getAttributeValueString() + " on " + dn);
     }
 
     public boolean changeAttribute(LDAPAttributeEnum attributeName, String newValue) {
@@ -269,7 +269,7 @@ public class LDAPObject {
         ArrayList<String> membershipArray = new ArrayList<>();
         for (LDAPAttribute attribute : attributeArray) {
             if (Objects.equals(attribute.getAttributeName(), "memberOf")) {
-                membershipArray.add(attribute.getAttributeValueString().split(",")[0].split("=")[1]);
+                membershipArray.add(attribute.getAttributeValueString().split(",")[0]);
             }
         }
         memberships = String.join(",", membershipArray.toArray(new String[0]));
@@ -318,7 +318,7 @@ public class LDAPObject {
         UUID uuid = UUID.randomUUID();
         String uniqueidentifier = uuid.toString();
 
-        if(this.SID == null)
+        if(this.SID == null || this.getAttributeValue(LDAPAttributeEnum.objectSid) == null)
         {
             this.SID = "S-" + revision + "-" + authority + "-"+ subauthority + "-" +uniqueidentifier;
             this.addAttribute(new LDAPAttribute(LDAPAttributeEnum.objectSid, SID, this));

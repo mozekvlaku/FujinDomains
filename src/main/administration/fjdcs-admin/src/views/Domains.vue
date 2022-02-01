@@ -4,7 +4,7 @@
             <vs-avatar @click="$router.go(-1)">
                 <i class='bx bx-arrow-back'></i>
             </vs-avatar>
-            <vs-avatar primary @click="userAction=true" style="margin-left:15px; cursor:pointer">
+            <vs-avatar primary @click="$router.push({ path: '/new_domain' })" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-plus'></i>
             </vs-avatar>
             <vs-avatar dark style="margin-left:15px">
@@ -14,7 +14,7 @@
             
         </div>
         
-        <vs-table striped ref="content">
+        <vs-table striped ref="content" v-if="$store.state.userlevel == 'SERVER'">
             <template #thead>
                 <vs-tr>
                     <vs-th style="width: 0px">
@@ -40,10 +40,22 @@
             <template #tbody>
                 <vs-tr :key="i" v-for="(domain, i) in domainlist" :data="domain">
                     <vs-td>
-                        <vs-button icon color="primary" flat tag="router-link"
-                            :to="{ path: '/domain/'+domain.domainName }">
-                            <i class='bx bx-window-open'></i>
-                        </vs-button>
+                        
+                        <div class="center">
+                            <vs-button-group v-if="domain.domainName!='builtin.local'">
+                                <vs-button icon color="primary" flat tag="router-link"
+                                    :to="{ path: '/domain/'+domain.domainName }">
+                                    <i class='bx bx-window-open'></i>
+                                </vs-button>
+                                <vs-button icon v-if="domain.domainName!='builtin.local'" color="danger" flat @click="removingDomain=true;remDomNam=domain.domainName;">
+                                    <i class='bx bx-x'></i>
+                                </vs-button>
+                            </vs-button-group>
+                            <vs-button icon color="primary" v-if="domain.domainName=='builtin.local'"  flat tag="router-link"
+                                    :to="{ path: '/domain/'+domain.domainName }">
+                                    <i class='bx bx-window-open'></i>
+                                </vs-button>
+                        </div>
                     </vs-td>
                     <vs-td width="90">
                         <img :src="domain.organizationLogo " style="width:90px" />
@@ -63,7 +75,71 @@
                 </vs-tr>
             </template>
         </vs-table>
+        <vs-dialog width="550px" v-model="removingDomain">
+            <template #header>
+                <h4>
+                    Připravujete se vymazat doménu {{remDomNam}}!!!
+                </h4>
+            </template>
 
+
+            <div class="con-content">
+                <p>
+                    TATO AKCE JE NEODVRATNÁ A SMAŽE VEŠKERÉ UŽIVATELSKÉ ÚČTY, CELÉ SCHÉMA, SKUPINY A NAPROSTO VŠECHNY ATRIBUTY ADRESÁŘOVÝCH OBJEKTŮ TÉTO DOMÉNY!
+                    Jste si na 100% jisti, že chcete tuto doménu smazat? Ztracené údaje již nebude moci obnovit!
+                </p>
+            </div>
+
+            <template #footer>
+                <div class="con-footer">
+                    <div class="columns is-centered is-mobile">
+                        <div class="column is-narrow">
+                            <vs-button @click="certainRemovingDomain=true;removingDomain=false" danger>
+                                Smazat
+                            </vs-button>
+                        </div>
+                        <div class="column is-narrow">
+                            <vs-button @click="removingDomain=false" dark>
+                                Storno
+                            </vs-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </vs-dialog>
+
+        <vs-dialog width="550px" v-model="certainRemovingDomain">
+            <template #header>
+                <h4>
+                    Jste si opravdu jisti?
+                </h4>
+            </template>
+
+
+            <div class="con-content">
+                <p>
+                    <blink><b>TATO AKCE JE NEODVRATNÁ A SMAŽE VEŠKERÉ UŽIVATELSKÉ ÚČTY, CELÉ SCHÉMA, SKUPINY A NAPROSTO VŠECHNY ATRIBUTY ADRESÁŘOVÝCH OBJEKTŮ TÉTO DOMÉNY!</b></blink>
+                    Jste si na 100% jisti, že chcete tuto doménu smazat? Ztracené údaje již nebude moci obnovit!
+                </p>
+            </div>
+
+            <template #footer>
+                <div class="con-footer">
+                    <div class="columns is-centered is-mobile">
+                        <div class="column is-narrow">
+                            <vs-button @click="deleteDomain" danger>
+                                Opravdu chci doménu smazat
+                            </vs-button>
+                        </div>
+                        <div class="column is-narrow">
+                            <vs-button @click="certainRemovingDomain=false" dark>
+                                Storno
+                            </vs-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </vs-dialog>
     </div>
 </template>
 <script>
@@ -75,7 +151,10 @@
             return {
                 isEmpty: true,
                 isLoading: true,
-                domainlist: []
+                domainlist: [],
+                removingDomain: false,
+                certainRemovingDomain: false,
+                remDomNam: ""
             };
         },
         methods: {
@@ -95,6 +174,60 @@
                 this.isLoading = false;
                 loading.close();
 
+            },async deleteDomain() {
+                const loading = this.$vs.loading({
+                    color: 'success',
+                    type: 'corners'
+                })
+
+
+                var data = new FormData();
+                data.append('domain', this.remDomNam);
+                data.append('auth', this.$store.state.token);
+                const hostname = this.$g('server_url') + "/v1/removedomain";
+                axios.post(hostname, data, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then((response) => {
+                        if (response.data.status === "success") {
+                            this.openNotification('top-center', 'success',
+                                `<i class='bx bx-select-multiple' ></i>`, 'Doména byla úspěšně smazána',
+                                'Operace úspěšná');
+                            loading.close();
+                            this.loadDomains();
+                            this.certainRemovingDomain=false;
+                            
+                        } else {
+                            this.openNotification('top-center', 'danger',
+                                `<i class='bx bx-select-multiple' ></i>`, response.data.message,
+                                'Upozornění zabezpečení FJDCS');
+                        }
+                        if (response.data === 401) {
+                            this.openNotification('top-center', 'danger',
+                                `<i class='bx bx-select-multiple' ></i>`, 'K tomuto zdroji nemáte přístup!',
+                                'Upozornění zabezpečení FJDCS');
+                        }
+                        loading.close();
+                    }).catch((error) => {
+                        loading.close();
+                        this.loadDomains();
+                        this.certainRemovingDomain=false;
+
+                        this.openNotification('top-center', 'danger',
+                            `<i class='bx bx-select-multiple' ></i>`, error, 'Chyba systému');
+                    });
+
+            },
+            openNotification(position = null, color, icon, text, title) {
+                this.$vs.notification({
+                    icon,progress: 'auto',
+                    color,
+                    position,
+                    title,
+                    text
+                })
             }
         },
         created() {

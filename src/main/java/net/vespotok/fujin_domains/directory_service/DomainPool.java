@@ -1,10 +1,10 @@
 package net.vespotok.fujin_domains.directory_service;
 
+import net.vespotok.fujin_domains.credential_provider.Credential;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomain;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomainName;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomainNameTypeEnum;
+import net.vespotok.fujin_domains.directory_service.model.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -20,20 +20,18 @@ public class DomainPool {
     private Logging l;
 
     private DirectoryServer ds;
+    private EntityManager em;
 
-    public DomainPool()
+    public DomainPool(DirectoryServer ds)
     {
         domainList = new ArrayList<>();
         l = new Logging(LoggingLevel.print, new LDAPDomainName("BUILTIN", LDAPDomainNameTypeEnum.NT4Style), "Domain Pool");
         l.log("Domain pool created.");
-
-
-    }
-
-    public void setDs(DirectoryServer ds)
-    {
         this.ds = ds;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("fjdcs-server");
+        em = emf.createEntityManager();
     }
+
 
     public void addDomain(LDAPDomain domain)
     {
@@ -47,13 +45,27 @@ public class DomainPool {
         em.close();
         emf.close();
 
+        domain.setEm(this.em);
+        domain.setDs(this.ds);
+    }
+    public void removeDomain(LDAPDomain domain)
+    {
+        domainList.remove(domain);
+        l.log("Removed domain " + domain.getDomainName().toWin2000Style() + " to the domain pool.");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("fjdcs-server");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        LDAPDomain thisDomain = em.find(LDAPDomain.class, domain.getId());
+        em.remove(thisDomain);
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
     }
 
     public void loadDomainsFromDb() throws Exception {
         l.log("Loading domains from database.");
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("fjdcs-server");
-        EntityManager em = emf.createEntityManager();
+
         em.getTransaction().begin();
         this.domainList = em.createQuery("SELECT d from LDAPDomain d").getResultList();
         //this.domainList = em.findAll;
@@ -67,7 +79,9 @@ public class DomainPool {
             String organizationLogo = domainList.get(i).getOrganizationLogoURL();
             domainList.get(i).persistLDAPDomain(ldapDomainName, organizationName,organizationLogo);
             domainList.get(i).setEm(em);
+            domainList.get(i).setDs(ds);
             em.persist(domainList.get(i));
+
         }
 
 
@@ -109,6 +123,35 @@ public class DomainPool {
         l.error("Domain " + domainName.toWin2000Style()+" not found.");
 
         return false;
+    }
+
+    public Credential getDomainCredentialByToken(String token) throws Exception {
+        for(LDAPDomain domain : domainList)
+        {
+            if(domain.getCredentialProvider().getCredential(token) != null)
+            {
+                return domain.getCredentialProvider().getCredential(token);
+            }
+        }
+        return null;
+    }
+
+    public LDAPDomain getDomainByLDAPUser(LDAPUser user)
+    {
+        l.log("Searching for domain with user " + user.getUsername()+".");
+
+        for(LDAPDomain domain : domainList)
+        {
+            if(domain.getObjectByDn(user.getDN()) != null)
+            {
+                l.success("User " + user.getUsername()+" found in domain "+domain.getDomainName().toWin2000Style()+".");
+
+                return domain;
+            }
+        }
+        l.error("User " + user.getUsername()+" was not found anywhere.");
+
+        return null;
     }
 
     public LDAPDomain getDomainByDomainName(LDAPDomainName domainName) throws Exception {

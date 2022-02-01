@@ -1,13 +1,13 @@
-package net.vespotok.fujin_domains.directory_service.api;
+package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.DirectoryServer;
-import net.vespotok.fujin_domains.directory_service.credential_provider.Credential;
-import net.vespotok.fujin_domains.directory_service.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.credential_provider.Credential;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.*;
+import net.vespotok.fujin_domains.directory_service.model.objects.GroupObject;
 import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,12 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 @RestController
 public class DirectoryController {
@@ -34,11 +30,9 @@ public class DirectoryController {
         l.log("Registered new Directory Server serving directory queries on server " + directoryServer.getServerAddress());
     }
     @RequestMapping(value="/api/v1/search", method = RequestMethod.GET, produces = "application/json", params = {"q", "domain", "auth"})
-    public String searchByNames(@RequestParam("q") String query,@RequestParam("domain") String domainName,@RequestParam("auth") String authToken)
-    {
+    public String searchByNames(@RequestParam("q") String query,@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -62,11 +56,9 @@ public class DirectoryController {
         return "401";
     }
     @RequestMapping(value="/api/v1/sids", method = RequestMethod.GET, produces = "application/json", params = {"q", "domain", "auth"})
-    public String searchBySIDs(@RequestParam("q") String query,@RequestParam("domain") String domainName,@RequestParam("auth") String authToken)
-    {
+    public String searchBySIDs(@RequestParam("q") String query,@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -88,8 +80,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/getLDIF", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth", "dn"})
     public String getLDIF(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -106,8 +97,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/users", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth"})
     public String getUsers(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -128,8 +118,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/user", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth"})
     public String getUser(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -151,8 +140,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/groups", method = RequestMethod.GET, produces = "application/json", params = {"domain", "auth"})
     public String getGroups(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -173,8 +161,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/change", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "dn", "data"})
     public String changeObject(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn,@RequestParam("data") String data) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -215,8 +202,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/delete", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "dn"})
     public String deleteObject(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -245,8 +231,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/removeFrom", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "dn", "dnToRemove"})
     public String removeFrom(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn,@RequestParam("dnToRemove") String dnToRemove) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -275,8 +260,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/addTo", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "dn", "dnToAdd"})
     public String addTo(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("dn") String dn,@RequestParam("dnToAdd") String dnToAdd) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -305,8 +289,7 @@ public class DirectoryController {
     @RequestMapping(value = "/api/v1/add", method = RequestMethod.POST, produces = "application/json", params = {"domain", "auth", "data", "objectclass"})
     public String addObject(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken,@RequestParam("data") String data,@RequestParam("objectclass") String objectclass) throws Exception {
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {
@@ -323,6 +306,17 @@ public class DirectoryController {
                         LDAPObject userObject = new UserObject(jsonObject, targetDomain);
                         targetDomain.addObject(userObject, checkUsr);
                     break;
+                    case "group":
+                        LDAPObject groupObject = new GroupObject(jsonObject, targetDomain);
+                        targetDomain.addObject(groupObject, checkUsr);
+                        break;
+                    case "domain":
+                        LDAPDomain newDomain = new LDAPDomain(new LDAPDomainName(jsonObject.getString("domainName"),LDAPDomainNameTypeEnum.Win2000Style), jsonObject.getString("organizationName"), jsonObject.getString("organizationLogo"));
+                        LDAPSystemAdministrator ldapAdmin = new LDAPSystemAdministrator(newDomain);
+                        ldapAdmin.authenticate(this.directoryServer.getAdministratorPassword());
+                        newDomain.loadDefaultGroups(ldapAdmin);
+                        this.directoryServer.domainPool.addDomain(newDomain);
+                        break;
                 }
             }
             catch (Exception e){

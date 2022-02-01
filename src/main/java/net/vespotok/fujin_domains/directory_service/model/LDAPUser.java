@@ -1,12 +1,16 @@
 package net.vespotok.fujin_domains.directory_service.model;
 
+import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Objects;
 
 public class LDAPUser {
     private String username;
     private String password;
     protected LDAPDomain loginDomain;
-    protected LDAPObject userObject;
+    protected UserObject userObject;
     protected String dn;
     protected String SID;
 
@@ -15,16 +19,15 @@ public class LDAPUser {
         this.loginDomain = loginDomain;
     }
 
-    public boolean login(String username, String password)
-    {
+    public boolean login(String username, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.username = username;
         this.password = password;
 
-        userObject = loginDomain.getObjectByUserPrincipalName(parseUsername(username));
+        userObject = (UserObject) loginDomain.getObjectByUserPrincipalName(parseUsername(username));
 
         String userPassword = userObject.getAttributeValue(LDAPAttributeEnum.userPassword);
 
-        if(Objects.equals(userPassword, password))
+        if(userObject.checkPassword(password))
         {
             dn = userObject.getDN();
             return true;
@@ -36,7 +39,7 @@ public class LDAPUser {
     {
         this.username = object.getAttribute(LDAPAttributeEnum.userPrincipalName).getAttributeValueString();
         this.password = object.getAttribute(LDAPAttributeEnum.userPassword).getAttributeValueString();
-        userObject = object;
+        userObject = (UserObject) object;
         dn = userObject.getDN();
         return true;
     }

@@ -24,7 +24,7 @@
     <br>
     <vs-row align="center" justify="center">
       <vs-col w="4" vs-type="flex" vs-justify="center" vs-align="center" style="justify-content: center;display: flex;">
-        <vs-card type="3">
+        <vs-card type="3" @click="$router.push({ path: '/security' })">
     <template #title>
       <h3>Zabezpečte si účet</h3>
     </template>

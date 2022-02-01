@@ -45,7 +45,7 @@
                     </div>
                 </div>
             </div>
-            <div class="column">
+            <div class="column" v-if="$store.state.userlevel == 'ENTERPRISE' || $store.state.userlevel == 'SERVER'">
                 <div class="domainback">
                     <h3 class="is-marginless">Nastavení domény / organizace</h3>
                     <br>

@@ -1,8 +1,8 @@
-package net.vespotok.fujin_domains.directory_service.api;
+package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.DirectoryServer;
-import net.vespotok.fujin_domains.directory_service.credential_provider.Credential;
-import net.vespotok.fujin_domains.directory_service.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.credential_provider.Credential;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
 import net.vespotok.fujin_domains.directory_service.model.*;
@@ -32,8 +32,7 @@ public class ServerController {
     public String getServer(@RequestParam("domain") String domainName,@RequestParam("auth") String authToken) throws Exception {
 
         LDAPDomain targetDomain = this.directoryServer.domainPool.getDomainByDomainName(domainName);
-        CredentialProvider credentialProvider = targetDomain.getCredentialProvider();
-        Credential credential = credentialProvider.getCredential(authToken);
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
 
         if(credential != null)
         {

@@ -8,13 +8,13 @@
             <vs-avatar primary @click="handleSubmit" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-save'></i>
             </vs-avatar>
-            <vs-avatar primary @click="adding=true" style="margin-left:15px; cursor:pointer">
+            <vs-avatar primary @click="adding=true" v-if="$store.state.userlevel == 'ENTERPRISE' || $store.state.userlevel == 'SERVER' || $store.state.userlevel == 'DOMAIN'" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-group'></i>
             </vs-avatar>
             <vs-avatar primary @click="exportLDIF" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-export'></i>
             </vs-avatar>
-            <vs-avatar danger @click="deleting=true" style="margin-left:15px; cursor:pointer">
+            <vs-avatar danger @click="deleting=true" v-if="$store.state.userlevel == 'ENTERPRISE' || $store.state.userlevel == 'SERVER' || $store.state.userlevel == 'DOMAIN'" style="margin-left:15px; cursor:pointer">
                 <i class='bx bx-x'></i>
             </vs-avatar>
             <vs-avatar dark style="margin-left:15px">
@@ -177,7 +177,7 @@
                 <vs-table striped ref="content">
             <template #thead>
                 <vs-tr>
-                    <vs-th style="width: 0px">
+                    <vs-th style="width: 0px"  v-if="$store.state.userlevel == 'ENTERPRISE' || $store.state.userlevel == 'SERVER' || $store.state.userlevel == 'DOMAIN'">
 
                     </vs-th>
                     <vs-th style="width: 0px">
@@ -193,7 +193,7 @@
             </template>
             <template #tbody>
                 <vs-tr :key="tr" v-for="(group, tr) in member" :data="group">
-                    <vs-td>
+                    <vs-td v-if="$store.state.userlevel == 'ENTERPRISE' || $store.state.userlevel == 'SERVER' || $store.state.userlevel == 'DOMAIN'">
                         <div class="center">
                                 <vs-button icon color="danger" flat @click="removing=true;removingObject=group[1].dn">
                                     <i class='bx bx-folder-minus'></i>

@@ -1,4 +1,4 @@
-package net.vespotok.fujin_domains.directory_service.credential_provider;
+package net.vespotok.fujin_domains.credential_provider;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
@@ -6,6 +6,8 @@ import net.vespotok.fujin_domains.directory_service.model.*;
 import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
 import org.json.JSONObject;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
@@ -38,8 +40,7 @@ public class CredentialProvider {
         return credentials;
     }
 
-    public Credential attemptLoginByPrincipalName(String username, String password)
-    {
+    public Credential attemptLoginByPrincipalName(String username, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         if(username != "" && password != "")
         {
             UserObject loggedInUser = null;
@@ -181,12 +182,13 @@ public class CredentialProvider {
                 case fujinAccount:
                     obj.put("FJID", loggedInUser.getAttributeValue(LDAPAttributeEnum.fujinId));
                     obj.put("USERNAME", loggedInUser.getAttributeValue(LDAPAttributeEnum.userPrincipalName));
-                    obj.put("USERGROUPS", loggedInUser.getMemberships());
+                    obj.put("USERGROUPS", "user," + loggedInUser.getMemberships());
+                    obj.put("FJGROUP", "domainUser");
                     obj.put("SH", loggedInUser.getAttributeValue(LDAPAttributeEnum.fujinSh));
                     obj.put("GUI", loggedInUser.getAttributeValue(LDAPAttributeEnum.fujinGui));
-                    obj.put("NAME", loggedInUser.getAttributeValue(LDAPAttributeEnum.name));
+                    obj.put("NAME", loggedInUser.getAttributeValue(LDAPAttributeEnum.givenName));
                     obj.put("SURNAME", loggedInUser.getAttributeValue(LDAPAttributeEnum.sn));
-                    obj.put("PROFILE_PIC", "");
+                    obj.put("PROFILE_PIC", loggedInUser.getAttributeValue(LDAPAttributeEnum.thumbnailPhoto));
                     obj.put("EMAIL", loggedInUser.getAttributeValue(LDAPAttributeEnum.mail));
                     obj.put("PHONE", loggedInUser.getAttributeValue(LDAPAttributeEnum.telephoneNumber));
                     break;
@@ -202,6 +204,7 @@ public class CredentialProvider {
             returnObject.put("version", "Vespotok Fujin Domain Service 1.0.0");
             returnObject.put("token", credential.getUUID());
             returnObject.put("expires", credential.getExpires().toString());
+            returnObject.put("userlevel", loggedInUser.getUserLevel());
             returnObject.put("user",obj);
             return returnObject.toString();
         }

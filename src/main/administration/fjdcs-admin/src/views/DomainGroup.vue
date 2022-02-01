@@ -42,7 +42,7 @@
                             <i class='bx bx-mail-send'></i>
                         </template></vs-input>
                 </div>
-                <div class="column is-narrow">
+                <div class="column is-narrow is-hidden">
                     <vs-switch dark>
                         <template #off>
                             Zabezpečovací skupina
@@ -508,7 +508,7 @@
 
 
                 var data = new FormData();
-                data.append('dn', this.domainName.domainName.userDn);
+                data.append('dn', this.domainName.domainName.groupDn);
                 data.append('domain', this.domainName.domainName.domainName);
                 data.append('auth', this.$store.state.token);
                 data.append('data', JSON.stringify(this.changedFormData));

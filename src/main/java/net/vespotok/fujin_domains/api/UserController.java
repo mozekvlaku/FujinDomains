@@ -1,18 +1,19 @@
-package net.vespotok.fujin_domains.directory_service.api;
+package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.DirectoryServer;
-import net.vespotok.fujin_domains.directory_service.credential_provider.Credential;
-import net.vespotok.fujin_domains.directory_service.credential_provider.CredentialProvider;
-import net.vespotok.fujin_domains.directory_service.credential_provider.JSONTypeEnum;
+import net.vespotok.fujin_domains.credential_provider.Credential;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.credential_provider.JSONTypeEnum;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomain;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomainName;
-import net.vespotok.fujin_domains.directory_service.model.LDAPDomainNameTypeEnum;
+import net.vespotok.fujin_domains.directory_service.model.*;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Locale;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Iterator;
 
 @RestController
 public class UserController {
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/api/v1/login", method = RequestMethod.GET, produces = "application/json", params = {"domain", "username", "password"})
-    public String tryLogin(@RequestParam("domain") String domain,@RequestParam("password") String password,@RequestParam("username") String username) {
+    public String tryLogin(@RequestParam("domain") String domain,@RequestParam("password") String password,@RequestParam("username") String username) throws NoSuchAlgorithmException, InvalidKeySpecException {
         LDAPDomain ldapDomain = this.directoryServer.domainPool.getDomainByDomainName(domain);
         CredentialProvider cp = ldapDomain.getCredentialProvider();
         cp.setLdapDomain(ldapDomain);
@@ -96,5 +97,29 @@ public class UserController {
             l.error("Wrong token!");
             return cp.getUnsuccessfulJSON("Wrong token! " + token);
         }
+    }
+
+    @RequestMapping(value = "/api/v1/resetpassword", method = RequestMethod.POST, produces = "application/json", params = {"auth", "data"})
+    public String resetPassword(@RequestParam("auth") String authToken,@RequestParam("data") String data) throws Exception {
+        Credential credential = this.directoryServer.domainPool.getDomainCredentialByToken(authToken);
+        if(credential != null)
+        {
+            var message = "Vše je v pořádku.";
+            var status = "success";
+            try {
+                JSONObject dataParse = new JSONObject(data);
+                credential.getUser().changePassword(dataParse.getString("old"), dataParse.getString("new1"), dataParse.getString("new2"));
+            }
+            catch (Exception e){
+                message = "Stala se chyba, zřejmě nemáte přístup k objektu. Další informace: " + e;
+                status = "error";
+            }
+            JSONObject returnObject = new JSONObject();
+            returnObject.put("status", status);
+            returnObject.put("message", message);
+            returnObject.put("version", "Vespotok Fujin Domain Service 1.0.0");
+            return returnObject.toString();
+        }
+        return "401";
     }
 }

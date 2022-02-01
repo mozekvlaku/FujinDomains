@@ -38,7 +38,6 @@
         },
         methods: {
             async getLoginData() {
-
                 if (typeof (this.$store.state.token) === undefined || this.$store.state.token === null) {
                     if (typeof (this.$route.query.token) !== undefined && this.$route.query.token !== undefined) {
 
@@ -53,7 +52,8 @@
                             this.name = results.data.user.cn;
                             this.nt4username = results.data.user.userPrincipalName;
                             this.$store.commit('TOKEN_GET', results.data.user)
-
+                            this.$store.commit('USER_LEVEL', results.data.userlevel)
+                            this.$emit('loadLinks', this.domain);
                         }
                         if (results.data.user.thumbnailPhoto != null || results.data.user.thumbnailPhoto !=
                             undefined) {
@@ -72,7 +72,6 @@
                     this.nt4username = this.$store.state.username
                     this.$Progress.finish();
                     this.isLoading = false;
-
                     if (this.$store.state.thumbnailPhoto != null || this.$store.state.thumbnailPhoto != undefined) {
                         this.profilePic = this.$store.state.thumbnailPhoto;
                         this.picture = true;

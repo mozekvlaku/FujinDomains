@@ -1,6 +1,7 @@
 package net.vespotok.fujin_domains.directory_service.model;
 
-import net.vespotok.fujin_domains.directory_service.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.credential_provider.CredentialProvider;
+import net.vespotok.fujin_domains.directory_service.DirectoryServer;
 import net.vespotok.fujin_domains.directory_service.helpers.AccessRightLevelEnum;
 import net.vespotok.fujin_domains.directory_service.helpers.AccessRightsHelper;
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
@@ -11,11 +12,8 @@ import net.vespotok.fujin_domains.directory_service.model.objects.Organizational
 import net.vespotok.fujin_domains.directory_service.model.objects.UserObject;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.json.JSONObject;
-import org.springframework.data.annotation.PersistenceConstructor;
 
 import javax.persistence.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Entity
@@ -50,6 +48,9 @@ public class LDAPDomain {
     @Transient
     private AccessRightsHelper ah;
 
+    @Transient
+    private DirectoryServer ds;
+
     public LDAPDomain() {
         this.domainName = new LDAPDomainName("persistence.load", LDAPDomainNameTypeEnum.Win2000Style);
         this.organizationName = "No name domain";
@@ -65,6 +66,15 @@ public class LDAPDomain {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setDs(DirectoryServer ds) {
+        this.ds = ds;
+        this.ah.setDs(ds);
+    }
+
+    public AccessRightsHelper getAh() {
+        return ah;
     }
 
     public LDAPDomain(LDAPDomainName domainName)
@@ -125,6 +135,12 @@ public class LDAPDomain {
             object.addAccessRight(new LDAPAccessRight(ldapUser, LDAPAccessRightEnum.addModifyDelete, object));
             domainObjects.add(object);
             l.log("Added object "+object.getDN()+" by user " + ldapUser.getUsername());
+
+            if(em != null) {
+                em.getTransaction().begin();
+                em.persist(object);
+                em.getTransaction().commit();
+            }
             if(object.getClass() == UserObject.class)
             {
                 try {
@@ -136,13 +152,7 @@ public class LDAPDomain {
 
                 }
             }
-            if(em != null) {
-                if (!em.getTransaction().isActive()) {
-                    em.getTransaction().begin();
-                }
-                em.persist(object);
-                em.getTransaction().commit();
-            }
+
         }
         else
         {
@@ -216,9 +226,7 @@ public class LDAPDomain {
             object.appendAttribute(LDAPAttributeEnum.memberOf, sid2);
             l.log("Added object "+object.getDN()+" to membership "+what.dn+" by user " + ldapUser.getUsername());
             if(em != null) {
-                if (!em.getTransaction().isActive()) {
-                    em.getTransaction().begin();
-                }
+                em.getTransaction().begin();
 
                 LDAPObject thisObject = em.find(LDAPObject.class, object.getId());
                 em.persist(thisObject);

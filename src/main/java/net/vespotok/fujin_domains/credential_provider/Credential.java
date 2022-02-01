@@ -1,4 +1,4 @@
-package net.vespotok.fujin_domains.directory_service.credential_provider;
+package net.vespotok.fujin_domains.credential_provider;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;

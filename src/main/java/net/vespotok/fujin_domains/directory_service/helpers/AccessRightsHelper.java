@@ -1,5 +1,6 @@
 package net.vespotok.fujin_domains.directory_service.helpers;
 
+import net.vespotok.fujin_domains.directory_service.DirectoryServer;
 import net.vespotok.fujin_domains.directory_service.model.*;
 
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.Objects;
 
 public class AccessRightsHelper {
     private LDAPDomain checkingDomain;
+    private DirectoryServer ds;
     private Logging l;
 
     public AccessRightsHelper(LDAPDomain checkingDomain) {
@@ -14,7 +16,7 @@ public class AccessRightsHelper {
         this.l = new Logging(LoggingLevel.print, checkingDomain.getDomainName(), "ACCESSRIGHTS");
     }
 
-    public boolean hasRightsToObject(LDAPObject ldapObject, LDAPUser ldapUser, AccessRightLevelEnum accessRightLevel, LDAPAccessRightEnum accessRight) {
+    public boolean hasRightsToObject(LDAPObject ldapObject, LDAPUser ldapUser, AccessRightLevelEnum accessRightLevel, LDAPAccessRightEnum accessRight) throws Exception {
         l.log("Checking " + ldapUser.getUsername() + " for access right " + accessRight.name() + " at " + accessRightLevel.name() + " level to object " + ldapObject.getDn());
         if (ldapUser instanceof LDAPSystemAdministrator)
         {
@@ -38,6 +40,11 @@ public class AccessRightsHelper {
                 return this.checkServerRights(ldapUser);
         }
         return false;
+    }
+
+    public boolean hasRightsToServerManipulate(LDAPUser ldapUser)
+    {
+        return this.checkServerRights(ldapUser);
     }
 
     public boolean hasRightsToDomain(LDAPUser ldapUser) {
@@ -89,7 +96,13 @@ public class AccessRightsHelper {
     {
         l.log("Checking server rights.");
 
-        LDAPObject serverGroup  = this.checkingDomain.getObjectByDn("cn=Server Admins,cn=Users," + this.checkingDomain.getDomainName().toDN());
+        LDAPDomain domain = this.ds.domainPool.getDomainByLDAPUser(user);
+        if(domain == null)
+        {
+            domain = this.checkingDomain;
+        }
+
+        LDAPObject serverGroup  = domain.getObjectByDn("cn=Server Admins,cn=Users," + domain.getDomainName().toDN());
         String checkingUserSID = user.getSID();
         String[] serverGroupMembers = serverGroup.getAttributeValue(LDAPAttributeEnum.member).split(",");
 
@@ -132,5 +145,9 @@ public class AccessRightsHelper {
         String[] serverGroupMembers = domainGroup.getAttributeValue(LDAPAttributeEnum.member).split(",");
 
         return Arrays.asList(serverGroupMembers).contains(checkingUserSID);
+    }
+
+    public void setDs(DirectoryServer ds) {
+        this.ds = ds;
     }
 }

@@ -1,4 +1,4 @@
-package net.vespotok.fujin_domains.directory_service.api;
+package net.vespotok.fujin_domains.api;
 
 import net.vespotok.fujin_domains.directory_service.helpers.Logging;
 import net.vespotok.fujin_domains.directory_service.helpers.LoggingLevel;

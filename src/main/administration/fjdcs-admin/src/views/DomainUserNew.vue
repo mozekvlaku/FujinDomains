@@ -173,7 +173,7 @@
                 hasVisiblePassword: false,
                 newUser: {
                     fujinSh: "/bin/sh",
-                    fujinGui: "/usr/local/raijin/raijin.appf",
+                    fujinGui: "/usr/share/raijin/raijin.appf",
                     fujinHome: "",
                     ipPhone: "",
                     fax: "",
