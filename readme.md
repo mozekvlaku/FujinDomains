@@ -30,6 +30,7 @@ value="jdbc:mysql://host.docker.internal:3306/fjdcs_server?serverTimezone=Americ
 ``
 
 # First run
+At first, Fujin Domains will create it's first, built-in domain. If you are running fjdcs in Docker, after you see message 'Ukončuji se.' restart the container. Otherwise you'll need to press Enter on prompt an restart the server service.
 
-At first, Fujin Domains will create it's first, built-in domain. You'll need to press Enter on prompt an restart the server service.
+
 Then, just navigate to localhost:8082 and login with username **Administrator@builtin.local**, or using NT4-style **BUILTIN\Administrator** and password **admin1**.
