@@ -11,6 +11,7 @@ public class LDAPAttribute {
     @Column(name="attributeName")
     private LDAPAttributeEnum attributeName;
 
+    @Lob
     @Column(name="attributeValue")
     private String attributeValue;
 

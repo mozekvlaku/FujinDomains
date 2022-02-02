@@ -99,7 +99,12 @@ public class AccessRightsHelper {
         LDAPDomain domain = this.ds.domainPool.getDomainByLDAPUser(user);
         if(domain == null)
         {
+            l.log("Domain not found");
             domain = this.checkingDomain;
+        }
+        else
+        {
+            l.log("User " + user.getUsername() + " found in domain " + domain.getDomainName().toWin2000Style());
         }
 
         LDAPObject serverGroup  = domain.getObjectByDn("cn=Server Admins,cn=Users," + domain.getDomainName().toDN());
