@@ -2,6 +2,9 @@
 
 Fujin Domains is a LDAP-like directory service and Credential Provider for Fujin web-os
 
+Demo of administration + login window: http://domains.vespotok.com/
+Demo of Fujin + Fujin Domains CP: https://sandbox.vespotok.net/fjdcs-demo/fujin3/shell/index.php
+
 ## Getting it up
 Fujin Domains is available to be run via Docker.
 
